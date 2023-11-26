@@ -40,7 +40,7 @@ if [ -n "$SERIAL_INPUT" ] && [ -n "$TCP_SERVER_OUTPUT" ]; then
     str2str -in "$SERIAL_INPUT" -out "$TCP_SERVER_OUTPUT" -b 1 -t 0 &
 
     # Run the second command only if all required parameters are specified
-    if [ -n "$PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ] && [ -n "$NTRIPS_OUTPUT" ]; then
+    if [ -n "$PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
         str2str -in tcpcli://localhost:5015#rtcm3 -out "ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3" $RTCM_MSG_COMMON &
     fi
 
