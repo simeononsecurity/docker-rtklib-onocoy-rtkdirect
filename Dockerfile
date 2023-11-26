@@ -4,7 +4,8 @@ FROM ubuntu:latest
 # Install RTKLIB from the package manager
 RUN apt update && \
     apt full-upgrade -y --no-install-recommends && \
-    apt install -y rtklib --no-install-recommends
+    apt install -y rtklib --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/* 
 
 # Set the working directory
 WORKDIR /app
