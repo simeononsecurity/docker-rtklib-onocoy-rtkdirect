@@ -1,7 +1,117 @@
-# docker-rtklib-onocoy-rtkdirect
-Docker Container that Takes in USB Serial GPS Reciever and Forwards the Data to Either Onocoy or RTKDirect or Both.
+# RTKLIB Docker Image for ONOCOY and RTKDIRECT
 
-This repository contains Dockerfiles and a script to set up a Docker image for running RTKLIB, a toolkit for real-time kinematic (RTK) positioning. The Docker image is based on the latest Ubuntu release.
+This Docker image provides a convenient setup for running [RTKLIB](https://www.rtklib.com/) with support for [ONOCOY](https://www.onocoy.com/) and [RTKDIRECT](https://rtkdirect.com/) services. 
+
+The image follows the guides we created for the individual services. If you'd like to do this manually, without Docker, please read the articles listed below:
+
+- https://simeononsecurity.com/other/onocoy-gps-gnss-reciever-basestation-on-a-budget/
+- https://simeononsecurity.com/other/diy-rtkdirect-reference-station-guide/
+- https://simeononsecurity.com/other/triple-mining-geodnet-onocoy-rtkdirect-gps-revolution/
+
+Follow the instructions below to use this image effectively.
+
+## Prerequisites
+
+Before using this Docker image, make sure you have the following prerequisites installed on your system:
+
+- Docker: [Install Docker](https://docs.docker.com/get-docker/)
+- Docker Compose (optional): [Install Docker Compose](https://docs.docker.com/compose/install/) if you prefer using Docker Compose for managing containers.
+
+### Hardware
+
+For recommended hardware for this project please read the following:
+
+- https://simeononsecurity.com/other/triple-mining-geodnet-onocoy-rtkdirect-gps-revolution/#hardware-requirements
+- https://simeononsecurity.com/other/unveiling-best-gps-antennas-onocoy-geodnet/
+- https://simeononsecurity.com/other/affordable-precision-positioning-gnss-modules/
+
+## Getting Started
+
+1. **Pull the Docker Image**
+
+   Pull the latest version of the Docker image from Docker Hub:
+
+   ```bash
+   docker pull simeononsecurity/docker-rtklib-onocoy-rtkdirect:latest
+   ```
+
+2. **Run the Docker Container**
+
+   Run the Docker container, ensuring that you provide the necessary environment variables and parameters:
+
+   ```bash
+   docker run \
+     -td \
+     --restart unless-stopped \
+     --name sosrtk \
+     -e USB_PORT=<YOUR_USB_PORT> \
+     -e BAUD_RATE=<YOUR_SERIAL_BAUD_RATE> \
+     -e DATA_BITS=<YOUR_SERIAL_DATA_BITS> \
+     -e PARITY=<YOUR_SERIAL_PARITY> \
+     -e STOP_BITS=<YOUR_SERIAL_STOP_BITS> \
+     -e ONOCOY_USERNAME=<YOUR_ONOCOY_MOUNTPOINT_USERNAME> \
+     -e PASSWORD=<YOUR_ONOCOY_MOUNTPOINT_PASSWORD> \
+     -e PORT_NUMBER=<YOUR_RTKLIB_PORT_NUMBER> \
+     -e LAT=<OPTIONAL_YOUR_LATITUDE> \
+     -e LONG=<OPTIONAL_YOUR_LONGITUDE> \
+     -e ELEVATION=<OPTIONAL_YOUR_ELEVATION_FROM_SEA_LEVEL_IN_METERS> \
+     -e INSTRUMENT=<OPTIONAL_YOUR_GPS_RECEIVER_DESCRIPTION> \
+     -e ANTENNA=<OPTIONAL_YOUR_ANTENNA_DESCRIPTION> \
+     simeononsecurity/docker-rtklib-onocoy-rtkdirect:latest
+   ```
+
+   Ensure you replace the placeholder values (`<...>`) with your specific configuration.
+
+   Ex.
+   ```bash
+   docker run \
+    -td \
+    --restart unless-stopped \
+    --name sosrtk \
+    -e USB_PORT=/dev/ttyUSB0 \
+    -e BAUD_RATE=921600 \
+    -e DATA_BITS=8 \
+    -e PARITY=n \
+    -e STOP_BITS=1 \
+    -e ONOCOY_USERNAME=your_onocoy_mountpoint_username \
+    -e PASSWORD=your_onocoy_mountpoint_password \
+    -e PORT_NUMBER=2101 \
+    -e LAT=37.7749 \
+    -e LONG=-122.4194 \
+    -e ELEVATION=50 \
+    -e INSTRUMENT="Your GPS Receiver" \
+    -e ANTENNA="Your Antenna" \
+    simeononsecurity/docker-rtklib-onocoy-rtkdirect:latest
+   ```
+
+3. **Monitor Logs**
+
+   Monitor the container logs to check for any issues or to observe the RTKLIB operation:
+
+   ```bash
+   docker logs sosrtk
+   ```
+
+4. **Customize Configuration**
+
+   If needed, you can customize the `docker-init.sh` script and rebuild the Docker image with your changes.
+
+## Docker Compose (Optional)
+
+If you prefer using Docker Compose, create a `docker-compose.yml` file with your desired configuration and run:
+
+```bash
+docker-compose up -d
+```
+
+This will start the container in detached mode.
+
+## Notes
+
+- Ensure that your system allows access to the specified USB port and that the necessary permissions are set.
+- Adjust environment variables according to your specific requirements.
+
+Now you have a Dockerized RTKLIB setup with ONOCOY and RTKDIRECT support. Customize the configuration based on your needs and enjoy precise real-time kinematic positioning!
 
 ## Dockerfile
 
