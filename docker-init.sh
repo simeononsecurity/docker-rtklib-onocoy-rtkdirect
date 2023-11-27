@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Set environment variables
-export ONOCOY_USERNAME="$ONOCOY_USERNAME"
-
 # Set default values for SERIAL_INPUT components
 export USB_PORT="${USB_PORT:-ttyUSB0}"
 export BAUD_RATE="${BAUD_RATE:-921600}"
@@ -38,7 +35,7 @@ fi
 
 # Run the second command only if all required parameters are specified
 if [ -n "$PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
-    str2str -in tcpcli://127.0.0.1:5015#rtcm3 -out ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3 -msg "1006(10), 1033(10), 1077, 1087, 1097, 1107, 1117, 1127, 1137, 1230" $RTCM_MSG_COMMON $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
+    str2str -in tcpcli://127.0.0.1:5015#rtcm3 -out ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3 -msg "1006(10), 1033(10), 1077, 1087, 1097, 1107, 1117, 1127, 1137, 1230" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
 fi
 
 # Run the third command only if all required parameters are specified
