@@ -1,6 +1,16 @@
 # Use Ubuntu as the base image
 FROM ubuntu:latest
 
+# Set Labels
+LABEL org.opencontainers.image.source="https://github.com/simeononsecurity/docker-rtklib-onocoy-rtkdirect"
+LABEL org.opencontainers.image.description=" Docker Container that Takes in USB Serial GPS Reciever and Forwards the Data to Either Onocoy or RTKDirect or Both."
+LABEL org.opencontainers.image.authors="simeononsecurity"
+
+# Set ENV Variables
+ENV DEBIAN_FRONTEND noninteractive
+ENV container docker
+ENV TERM=xterm
+
 # Install RTKLIB from the package manager
 RUN apt update && \
     apt full-upgrade -y --no-install-recommends && \
