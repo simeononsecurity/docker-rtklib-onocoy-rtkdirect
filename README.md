@@ -41,11 +41,14 @@ For recommended hardware for this project please read the following:
 
    Run the Docker container, ensuring that you provide the necessary environment variables and parameters:
 
+    > You don't have to specify both Onocoy and RTKDirect credentials. The backend script is smart and looks to see if they have been set. You can use one or both and this should function perfectly.
+
    ```bash
    docker run \
      -td \
      --restart unless-stopped \
      --name sosrtk \
+     --device=/dev/<YOUR_USB_PORT> \
      -e USB_PORT=<YOUR_USB_PORT> \
      -e BAUD_RATE=<YOUR_SERIAL_BAUD_RATE> \
      -e DATA_BITS=<YOUR_SERIAL_DATA_BITS> \
@@ -70,6 +73,7 @@ For recommended hardware for this project please read the following:
     -td \
     --restart unless-stopped \
     --name sosrtk \
+    --device=/dev/ttyUSB0 \
     -e USB_PORT=/dev/ttyUSB0 \
     -e BAUD_RATE=921600 \
     -e DATA_BITS=8 \
