@@ -46,7 +46,7 @@ fi
 
 # Run the third command only if all required parameters are specified
 if [ -n "$PORT_NUMBER" ]; then
-    str2str -in tcpcli://127.0.0.1:5016#rtcm3 -out tcpcli://ntrip.rtkdirect.com:$PORT_NUMBER#rtcm3 $RTCM_MSG_COMMON &
+    str2str -in tcpcli://127.0.0.1:5015#rtcm3 -out tcpcli://ntrip.rtkdirect.com:$PORT_NUMBER#rtcm3 $RTCM_MSG_COMMON &
 fi
 
 # Reset the 'exit immediately' option
