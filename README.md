@@ -81,7 +81,7 @@ For recommended hardware for this project please read the following:
     -e STOP_BITS=1 \
     -e ONOCOY_USERNAME=your_onocoy_mountpoint_username \
     -e PASSWORD=your_onocoy_mountpoint_password \
-    -e PORT_NUMBER=2101 \
+    -e PORT_NUMBER=32377 \
     -e LAT=37.7749 \
     -e LONG=-122.4194 \
     -e ELEVATION=50 \
