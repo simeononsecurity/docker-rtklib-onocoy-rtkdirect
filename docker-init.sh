@@ -14,11 +14,21 @@ export STOP_BITS="${STOP_BITS:-1}"
 export SERIAL_INPUT="serial://$USB_PORT:$BAUD_RATE:$DATA_BITS:$PARITY:$STOP_BITS#rtcm3"
 
 # Set RTCM_MSG_COMMON without latitude, longitude, and elevation
-export RTCM_MSG_COMMON="-msg \"1006(30), 1008(30), 1012(30), 1033(30), 1077, 1087, 1097, 1107, 1117, 1127, 1137, 1230\" -t 0"
+export RTCM_MSG_COMMON="-msg \"1006(30), 1033(30), 1077, 1087, 1097, 1107, 1117, 1127, 1137, 1230\" -t 0"
 
 # Check if LAT, LONG, and ELEVATION are specified
 if [ -n "$LAT" ] && [ -n "$LONG" ] && [ -n "$ELEVATION" ]; then
     RTCM_MSG_COMMON="-p \"$LAT $LONG $ELEVATION\" $RTCM_MSG_COMMON"
+fi
+
+# Check if INSTRUMENT is specified
+if [ -n "$INSTRUMENT" ]; then
+    RTCM_MSG_COMMON+=" -i \"$INSTRUMENT\""
+fi
+
+# Check if ANTENNA is specified
+if [ -n "$ANTENNA" ]; then
+    RTCM_MSG_COMMON+=" -a \"$ANTENNA\""
 fi
 
 # Exit immediately if a command fails
