@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Set environment variables
-export TCP_SERVER_OUTPUT="tcpsvr://:5015#rtcm3"
 export ONOCOY_USERNAME="$ONOCOY_USERNAME"
 
 # Set default values for SERIAL_INPUT components
@@ -19,38 +18,26 @@ export RTCM_MSG_COMMON="-msg \"1006(30), 1008(30), 1012(30), 1033(30), 1077, 108
 
 # Check if LAT, LONG, and ELEVATION are specified
 if [ -n "$LAT" ] && [ -n "$LONG" ] && [ -n "$ELEVATION" ]; then
-    RTCM_MSG_COMMON+=" -p $LAT $LONG $ELEVATION"
-fi
-
-# Check if INSTRUMENT is specified
-if [ -n "$INSTRUMENT" ]; then
-    RTCM_MSG_COMMON+=" -i \"$INSTRUMENT\""
-fi
-
-# Check if ANTENNA is specified
-if [ -n "$ANTENNA" ]; then
-    RTCM_MSG_COMMON+=" -a \"$ANTENNA\""
+    RTCM_MSG_COMMON="-p \"$LAT $LONG $ELEVATION\" $RTCM_MSG_COMMON"
 fi
 
 # Exit immediately if a command fails
 set -e
 
 # Run the first command only if all required parameters are specified
-if [ -n "$SERIAL_INPUT" ] && [ -n "$TCP_SERVER_OUTPUT" ]; then
-    str2str -in "$SERIAL_INPUT" -out "$TCP_SERVER_OUTPUT" -b 1 -t 0 &
-
-    # Run the second command only if all required parameters are specified
-    if [ -n "$PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
-        str2str -in tcpcli://localhost:5015#rtcm3 -out "ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3" $RTCM_MSG_COMMON &
-    fi
-
-    # Run the third command only if all required parameters are specified
-    if [ -n "$PORT_NUMBER" ]; then
-        str2str -in tcpcli://localhost:5015#rtcm3 -out "tcpcli://ntrip.rtkdirect.com:$PORT_NUMBER#rtcm3" $RTCM_MSG_COMMON &
-    fi
+if [ -n "$SERIAL_INPUT" ]; then
+    str2str -in "$SERIAL_INPUT" -out tcpsvr://:5016#rtcm3 -b 1 -t 0 &
 fi
 
+# Run the second command only if all required parameters are specified
+if [ -n "$PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
+    str2str -in tcpcli://127.0.0.1:5015#rtcm3 -out ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3 $RTCM_MSG_COMMON &
+fi
 
+# Run the third command only if all required parameters are specified
+if [ -n "$PORT_NUMBER" ]; then
+    str2str -in tcpcli://127.0.0.1:5016#rtcm3 -out tcpcli://ntrip.rtkdirect.com:$PORT_NUMBER#rtcm3 $RTCM_MSG_COMMON &
+fi
 
 # Reset the 'exit immediately' option
 set +e
