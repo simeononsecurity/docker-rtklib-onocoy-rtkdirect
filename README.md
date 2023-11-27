@@ -74,7 +74,7 @@ For recommended hardware for this project please read the following:
     --restart unless-stopped \
     --name sosrtk \
     --device=/dev/ttyUSB0 \
-    -e USB_PORT=/dev/ttyUSB0 \
+    -e USB_PORT=ttyUSB0 \
     -e BAUD_RATE=921600 \
     -e DATA_BITS=8 \
     -e PARITY=n \
