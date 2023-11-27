@@ -199,3 +199,6 @@ Feel free to customize the script and Dockerfile to meet your specific RTKLIB co
 <a href="https://simeononsecurity.com" target="_blank" rel="noopener noreferrer">
   <img src="https://simeononsecurity.com/img/banner.png" alt="SimeonOnSecurity Logo" width="300" height="300">
 </a>
+
+## References
+- https://kb.shawnchen.info/knowledge-base/docker/give-access-to-host-usb-for-serial-device-on-docker-container/
