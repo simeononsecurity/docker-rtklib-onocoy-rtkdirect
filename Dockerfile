@@ -3,7 +3,7 @@ FROM ubuntu:latest
 
 # Set Labels
 LABEL org.opencontainers.image.source="https://github.com/simeononsecurity/docker-rtklib-onocoy-rtkdirect"
-LABEL org.opencontainers.image.description=" Docker Container that Takes in USB Serial GPS Reciever and Forwards the Data to Either Onocoy or RTKDirect or Both."
+LABEL org.opencontainers.image.description="Docker Container that Takes in USB Serial GPS Receiver and Forwards the Data to Either Onocoy or RTKDirect or Both."
 LABEL org.opencontainers.image.authors="simeononsecurity"
 
 # Set ENV Variables
