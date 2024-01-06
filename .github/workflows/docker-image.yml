@@ -35,14 +35,15 @@ jobs:
           password: ${{ secrets.PAT_TOKEN }}
 
       - name: Build the Docker image
-        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes && docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest --progress=plain --output type=oci --push .
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes && docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest --progress=plain --push .
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: simeononsecurity/docker-rtklib-onocoy-rtkdirect:latest
 
       - name: Build the simeononsecurity/docker-rtklib-onocoy-rtkdirect:latest Docker image for Github Registry
-        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes && docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest --progress=plain --output type=oci --push .
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes && docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest --progress=plain --push .
