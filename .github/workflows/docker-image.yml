@@ -39,14 +39,12 @@ jobs:
         with:
           context: .
           push: true
-          platforms: linux/amd64,linux/arm64
+          sbom: true
+          provenance: mode=max
+          outputs: type=registry
+          platforms: |
+            linux/amd64
+            linux/arm64
           file: Dockerfile
-          cache-from: |
-            type=gha .
-            type=inline .
-            ${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
-            type=registry,ref=${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
-          cache-to: |
-            type=registry,ref=${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
           tags: ${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest, ghcr.io/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
           github-token: ${{ secrets.PAT_TOKEN }}
