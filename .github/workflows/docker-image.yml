@@ -44,9 +44,9 @@ jobs:
           cache-from: |
             type=gha .
             type=inline .
-            simeononsecurity/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
-            type=registry,ref=simeononsecurity/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
+            ${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
+            type=registry,ref=${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
           cache-to: |
-            type=registry,ref=simeononsecurity/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
-          tags: simeononsecurity/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest, ghcr.io/simeononsecurity/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
+            type=registry,ref=${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest, ghcr.io/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
           github-token: ${{ secrets.PAT_TOKEN }}
