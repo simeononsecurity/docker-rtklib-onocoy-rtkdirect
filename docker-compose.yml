@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  sosrtk:
+    image: simeononsecurity/docker-rtklib-onocoy-rtkdirect:latest
+    container_name: sosrtk
+    restart: unless-stopped
+    devices:
+      - /dev/ttyUSB0
+    environment:
+      - USB_PORT=ttyUSB0
+      - BAUD_RATE=921600
+      - DATA_BITS=8
+      - PARITY=n
+      - STOP_BITS=1
+      - ONOCOY_USERNAME=<YOUR_ONOCOY_MOUNTPOINT_USERNAME>
+      - PASSWORD=<YOUR_ONOCOY_MOUNTPOINT_PASSWORD>
+      - PORT_NUMBER=<YOUR_RTKLIB_PORT_NUMBER>
+      - LAT=<OPTIONAL_YOUR_LATITUDE>
+      - LONG=<OPTIONAL_YOUR_LONGITUDE>
+      - ELEVATION=<OPTIONAL_YOUR_ELEVATION_FROM_SEA_LEVEL_IN_METERS>
+      - INSTRUMENT=<OPTIONAL_YOUR_GPS_RECEIVER_DESCRIPTION>
+      - ANTENNA=<OPTIONAL_YOUR_ANTENNA_DESCRIPTION>
