@@ -6,6 +6,7 @@ export BAUD_RATE="${BAUD_RATE:-921600}"
 export DATA_BITS="${DATA_BITS:-8}"
 export PARITY="${PARITY:-n}"
 export STOP_BITS="${STOP_BITS:-1}"
+export RTCM_MSGS="${RTCM_MSGS:1006(10), 1033(10), 1077, 1087, 1097, 1107, 1117, 1127, 1137, 1230}"
 
 # Construct SERIAL_INPUT using individual components
 export SERIAL_INPUT="serial://$USB_PORT:$BAUD_RATE:$DATA_BITS:$PARITY:$STOP_BITS#rtcm3"
@@ -35,12 +36,12 @@ fi
 
 # Run the second command only if all required parameters are specified
 if [ -n "$PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
-    str2str -in tcpcli://127.0.0.1:5015#rtcm3 -msg "1006(10), 1033(10), 1077, 1087, 1097, 1107, 1117, 1127, 1137, 1230" -out ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3 -msg "1006(10), 1033(10), 1077, 1087, 1097, 1107, 1117, 1127, 1137, 1230" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
+    str2str -in tcpcli://127.0.0.1:5015#rtcm3 -msg "$RTCM_MSGS" -out ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3 -msg "RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
 fi
 
 # Run the third command only if all required parameters are specified
 if [ -n "$PORT_NUMBER" ]; then
-    str2str -in tcpcli://127.0.0.1:5015#rtcm3 -msg "1006(10), 1033(10), 1077, 1087, 1097, 1107, 1117, 1127, 1137, 1230" -out tcpcli://ntrip.rtkdirect.com:$PORT_NUMBER#rtcm3 -msg "1006(10), 1033(10), 1077, 1087, 1097, 1107, 1117, 1127, 1137, 1230" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
+    str2str -in tcpcli://127.0.0.1:5015#rtcm3 -msg "$RTCM_MSGS -out tcpcli://ntrip.rtkdirect.com:$PORT_NUMBER#rtcm3 -msg "RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
 fi
 
 # Keep the script running indefinitely
