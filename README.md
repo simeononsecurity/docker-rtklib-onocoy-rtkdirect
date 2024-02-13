@@ -43,6 +43,8 @@ For recommended hardware for this project please read the following:
 
     > You don't have to specify both Onocoy and RTKDirect credentials. The backend script is smart and looks to see if they have been set. You can use one or both and this should function perfectly.
 
+   > If the environment variable `ONCOCOY_MOUNTPOINT` is specified, the docker container will use **NTRIPSERVER**, otherwise it'll USE **RTKLIB** for the connection.
+
    ```bash
    docker run \
      -td \
@@ -54,6 +56,7 @@ For recommended hardware for this project please read the following:
      -e DATA_BITS=<YOUR_SERIAL_DATA_BITS> \
      -e PARITY=<YOUR_SERIAL_PARITY> \
      -e STOP_BITS=<YOUR_SERIAL_STOP_BITS> \
+     -e ONOCOY_MOUNTPOINT=<YOUR_ONOCOY_MOUNTPOINT> \
      -e ONOCOY_USERNAME=<YOUR_ONOCOY_MOUNTPOINT_USERNAME> \
      -e PASSWORD=<YOUR_ONOCOY_MOUNTPOINT_PASSWORD> \
      -e PORT_NUMBER=<YOUR_RTKLIB_PORT_NUMBER> \
@@ -79,6 +82,7 @@ For recommended hardware for this project please read the following:
     -e DATA_BITS=8 \
     -e PARITY=n \
     -e STOP_BITS=1 \
+    -e ONOCOY_MOUNTPOINT=your_onocoy_mountpoint \
     -e ONOCOY_USERNAME=your_onocoy_mountpoint_username \
     -e PASSWORD=your_onocoy_mountpoint_password \
     -e PORT_NUMBER=32377 \
