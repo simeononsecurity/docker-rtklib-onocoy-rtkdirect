@@ -43,7 +43,7 @@ For recommended hardware for this project please read the following:
 
     > You don't have to specify both Onocoy and RTKDirect credentials. The backend script is smart and looks to see if they have been set. You can use one or both and this should function perfectly.
 
-   > If the environment variable `ONCOCOY_MOUNTPOINT` is specified, the docker container will use **NTRIPSERVER**, otherwise it'll use **RTKLIB** for the connection.
+   > If the environment variable `ONCOCOY_MOUNTPOINT` is specified, the docker container will use **NTRIPSERVER**, otherwise it'll use **RTKLIB** for the connection to Onocoy. The container will use RTKLIB for the splitting of the feed and connection to RTKDIRECT still however.
 
    ```bash
    docker run \
