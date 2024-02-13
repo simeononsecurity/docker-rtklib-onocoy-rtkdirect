@@ -1,8 +1,8 @@
-# RTKLIB Docker Image for ONOCOY and RTKDIRECT
+# RTKLIB and NTRIPSERVER Docker Image for ONOCOY and RTKDIRECT
 
 [![Docker Image CI](https://github.com/simeononsecurity/docker-rtklib-onocoy-rtkdirect/actions/workflows/docker-image.yml/badge.svg)](https://github.com/simeononsecurity/docker-rtklib-onocoy-rtkdirect/actions/workflows/docker-image.yml)
 
-This Docker image provides a convenient setup for running [RTKLIB](https://www.rtklib.com/) with support for [ONOCOY](https://www.onocoy.com/) and [RTKDIRECT](https://rtkdirect.com/) services. 
+This Docker image provides a convenient setup for running [RTKLIB](https://www.rtklib.com/) and [NTRIPSERVER](https://github.com/simeononsecurity/ntripserver) with support for [ONOCOY](https://www.onocoy.com/) and [RTKDIRECT](https://rtkdirect.com/) services. 
 
 The image follows the guides we created for the individual services. If you'd like to do this manually, without Docker, please read the articles listed below:
 
