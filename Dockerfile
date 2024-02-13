@@ -11,14 +11,20 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV container docker
 ENV TERM=xterm
 
-# Install RTKLIB from the package manager
+# Install RTKLIB and NTRIPSERVER dependencies from the package manager
 RUN apt update && \
     apt full-upgrade -y --no-install-recommends && \
     apt install -y rtklib && \
+    apt install -y gpsd gpsd-clients gpsbabel git make build-essential && \
     rm -rf /var/lib/apt/lists/* 
 
 # Set the working directory
 WORKDIR /app
+
+# Download and Install NTRIP Server with SimeonOnSecurity Baud Rate Patch
+RUN git clone https://github.com/simeononsecurity/ntripserver.git && \
+    cd ./ntripserver && \
+    make
 
 # Copy the script into the container
 COPY docker-init.sh /app/docker-init.sh
