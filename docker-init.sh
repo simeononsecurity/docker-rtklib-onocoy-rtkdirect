@@ -9,7 +9,7 @@ export STOP_BITS="${STOP_BITS:-1}"
 export RTCM_MSGS="${RTCM_MSGS:-\"1006(30), 1033(30), 1077, 1087, 1097, 1107, 1117, 1127, 1137, 1230\"}"
 
 # Construct SERIAL_INPUT using individual components
-export SERIAL_INPUT="serial://$USB_PORT:$BAUD_RATE:$DATA_BITS:$PARITY:$STOP_BITS#rtcm3"
+export SERIAL_INPUT="serial://$USB_PORT:$BAUD_RATE:$DATA_BITS:$PARITY:$STOP_BITS"
 
 # Check if LAT, LONG, and ELEVATION are specified
 if [ -n "$LAT" ] && [ -n "$LONG" ] && [ -n "$ELEVATION" ]; then
@@ -31,7 +31,8 @@ set -e
 
 # Run the first command only if all required parameters are specified
 if [ -n "$SERIAL_INPUT" ]; then
-    str2str -in "$SERIAL_INPUT" -out tcpsvr://:5015#rtcm3  -b 1 -t 0 &
+    echo "SERIAL_INPUT is \"$SERIAL_INPUT\""
+    str2str -in "$SERIAL_INPUT" -out tcpsvr://:5015 -b 1 -t 0 &
 fi
 
 # Run the second command only if all required parameters are specified
