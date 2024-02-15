@@ -38,8 +38,7 @@ fi
 # Run the second command only if all required parameters are specified
 if [ -n "$PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
     if [ -n "$ONOCOY_MOUNTPOINT" ]; then
-       chmod +x /app/ntripserver/ntripserver
-       /app/ntripserver/ntripserver -M 2 -H 127.0.0.1 -P 5015 -O 1 -a servers.onocoy.com -p 2101 -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$PASSWORD"
+        ntripserver -M 2 -H 127.0.0.1 -P 5015 -O 1 -a servers.onocoy.com -p 2101 -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$PASSWORD"
     else
         str2str -in tcpcli://127.0.0.1:5015#rtcm3 -out ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3 -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
     fi
