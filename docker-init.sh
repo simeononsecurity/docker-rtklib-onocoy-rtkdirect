@@ -1,4 +1,4 @@
-#!/bin/bash
+bin/bash
 
 # Set default values for SERIAL_INPUT components
 export USB_PORT="${USB_PORT:-ttyUSB0}"
@@ -38,6 +38,7 @@ fi
 # Run the second command only if all required parameters are specified
 if [ -n "$PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
     if [ -n "$ONOCOY_MOUNTPOINT" ]; then
+        sleep 1
         ntripserver -M 2 -H 127.0.0.1 -P 5015 -O 1 -a servers.onocoy.com -p 2101 -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$PASSWORD"
     else
         str2str -in tcpcli://127.0.0.1:5015#rtcm3 -out ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3 -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
@@ -46,12 +47,13 @@ fi
 
 # Run the third command only if all required parameters are specified
 if [ -n "$PORT_NUMBER" ]; then
+    sleep 1
     str2str -in tcpcli://127.0.0.1:5015#rtcm3 -out tcpcli://ntrip.rtkdirect.com:$PORT_NUMBER#rtcm3 -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
 fi
 
 # Keep the script running indefinitely
 while true; do
-    sleep 1  # You can adjust the sleep duration as needed
+    sleep 1
 done
 
 # Reset the 'exit immediately' option
