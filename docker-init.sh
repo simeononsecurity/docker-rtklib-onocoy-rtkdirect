@@ -32,7 +32,7 @@ set -e
 # Run the first command only if all required parameters are specified
 if [ -n "$SERIAL_INPUT" ]; then
     echo "SERIAL_INPUT is \"$SERIAL_INPUT\""
-    str2str -in "$SERIAL_INPUT" -out tcpsvr://:5015 -b 1 -t 0 &
+    str2str -in "$SERIAL_INPUT" -out tcpsvr://0.0.0.0:5015 -b 1 -t 0 &
 fi
 
 # Run the second command only if all required parameters are specified
