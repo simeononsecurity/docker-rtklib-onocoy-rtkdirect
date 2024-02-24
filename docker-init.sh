@@ -1,4 +1,4 @@
-bin/bash
+#!/bin/bash
 
 # Set default values for SERIAL_INPUT components
 export USB_PORT="${USB_PORT:-ttyUSB0}"
