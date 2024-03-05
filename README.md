@@ -48,7 +48,7 @@ For recommended hardware for this project please read the following:
 
    > You may specify `TCP_OUTPUT_PORT` to change the tcp server's output port if using docker's [host networking mode](https://docs.docker.com/network/#drivers). Otherwise use the appropriate docker [port mappings](https://docs.docker.com/network/#published-ports).
 
-   > You can host any RTKLIBor tcp server instance on another machine and retreive the data using our dockers tcp client mode by defining `TCP_INPUT_IP` and `TCP_INPUT_PORT`. In which you'll specify your tcp servers ip and port.
+   > You can host any RTKLIB or tcp server instance on another machine and retreive the data using our dockers tcp client mode by defining `TCP_INPUT_IP` and `TCP_INPUT_PORT`. In which you'll specify your tcp servers ip and port.
 
    ```bash
    docker run \
