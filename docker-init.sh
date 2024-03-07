@@ -23,11 +23,15 @@ set -e
 # Function to run a command and restart it if it fails
 run_and_retry() {
     while true; do
-        "$@" && echo "$@ ended successfully - monitoring for restart." >&2
-        echo "$@ crashed with exit code $?. Respawning.." >&2
+        if "$@"; then
+            echo "$@ ended successfully - monitoring for restart." >&2
+        else
+            echo "$@ crashed with exit code $?. Respawning.." >&2
+        fi
         sleep 1
     done
 }
+
 
 # Check if LAT, LONG, and ELEVATION are specified
 if [ -n "$LAT" ] && [ -n "$LONG" ] && [ -n "$ELEVATION" ]; then
