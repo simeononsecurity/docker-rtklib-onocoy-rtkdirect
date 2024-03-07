@@ -22,7 +22,8 @@ set -e
 
 # Function to run a command and restart it if it fails
 run_and_retry() {
-    until "$@"; do
+    while true; do
+        "$@" && echo "$@ ended successfully - monitoring for restart." >&2
         echo "$@ crashed with exit code $?. Respawning.." >&2
         sleep 1
     done
