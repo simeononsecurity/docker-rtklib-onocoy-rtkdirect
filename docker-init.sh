@@ -31,23 +31,29 @@ run_and_retry() {
 # Check if LAT, LONG, and ELEVATION are specified
 if [ -n "$LAT" ] && [ -n "$LONG" ] && [ -n "$ELEVATION" ]; then
     LAT_LONG_ELEVATION="-p \"$LAT $LONG $ELEVATION\""
+    echo "LAT LOG ELEVATION: $LAT_LONG_ELEVATION"
 fi
 
 # Check if INSTRUMENT is specified
 if [ -n "$INSTRUMENT" ]; then
     INSTRUMENT="-i \"$INSTRUMENT\""
+    echo "INSTRUMENT: $INSTRUMENT"
 fi
 
 # Check if ANTENNA is specified
 if [ -n "$ANTENNA" ]; then
     ANTENNA="-a \"$ANTENNA\""
+    echo "ANTENNA: $ANTENNA"
 fi
 
 # Function for running the second command
 run_onocoy_server() {
     if [ -n "$PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
+        echo "PASSWORD: $PASSWORD"
+        echo "ONOCOY_USERNAME: $ONOCOY_USERNAME"
         if [ -n "$ONOCOY_MOUNTPOINT" ]; then
             sleep 1
+            echo "ONOCOY_MOUNTPOINT: $ONOCOY_MOUNTPOINT"
             run_and_retry ntripserver -M 2 -H 127.0.0.1 -P $TCP_OUTPUT_PORT -O 1 -a servers.onocoy.com -p 2101 -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$PASSWORD" &
         else
             run_and_retry str2str -in tcpcli://127.0.0.1:$TCP_OUTPUT_PORT#rtcm3 -out ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3 -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
@@ -59,6 +65,7 @@ run_onocoy_server() {
 run_rtkdirect_server() {
     if [ -n "$PORT_NUMBER" ]; then
         sleep 1
+        echo "PORT_NUMBER: $PORT_NUMBER"
         run_and_retry str2str -in tcpcli://127.0.0.1:$TCP_OUTPUT_PORT#rtcm3 -out tcpcli://ntrip.rtkdirect.com:$PORT_NUMBER#rtcm3 -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
     fi
 }
@@ -66,12 +73,16 @@ run_rtkdirect_server() {
 # Run the first command only if all required parameters are specified
 if [ -n "$SERIAL_INPUT" ]; then
     echo "SERIAL_INPUT is \"$SERIAL_INPUT\""
+    echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
     run_and_retry str2str -in "$SERIAL_INPUT" -out tcpsvr://0.0.0.0:$TCP_OUTPUT_PORT -b 1 -t 0 &
     TCP_SERVER_SETUP_SUCCESSFUL=1
 else
     echo "No Serial / USB Option Specified, Checking for TCP Input Options..."
     if [ -n "$TCP_INPUT_PORT" ] && [ -n "$TCP_INPUT_IP" ]; then
         echo "TCP Input IP and Port are specified. Processing with TCP Input..."
+        echo "TCP_INPUT_PORT is \"$TCP_INPUT_PORT\""
+        echo "TCP_INPUT_IP is \"$TCP_INPUT_IP\""
+        echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
         run_and_retry str2str -in tcpcli://$TCP_INPUT_IP:$TCP_INPUT_PORT -out tcpsvr://0.0.0.0:$TCP_OUTPUT_PORT -b 1 -t 0 &
         TCP_SERVER_SETUP_SUCCESSFUL=1
     else
