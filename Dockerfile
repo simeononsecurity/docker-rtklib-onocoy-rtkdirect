@@ -49,6 +49,16 @@ COPY --from=builder /app/RTKLIB/app/consapp/str2str/gcc/str2str /usr/local/bin/s
 # Copy the compiled NTRIP server from the build stage
 COPY --from=builder /app/ntripserver/ntripserver /usr/local/bin/ntripserver
 
+# Copy the healthcheck script into the container
+COPY healthcheck.sh /usr/local/bin/healthcheck.sh
+
+# Make sure the script is executable
+RUN chmod +x /usr/local/bin/healthcheck.sh
+
+# Healthcheck configuration
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3
+CMD /usr/local/bin/healthcheck.sh
+
 # Set the working directory
 WORKDIR /app
 
