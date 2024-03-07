@@ -110,3 +110,11 @@ else
     echo "TCP server setup failed. Skipping command blocks..."
     exit 1
 fi
+
+# Keep the script running indefinitely
+while true; do
+    sleep 1
+done
+
+# Reset the 'exit immediately' option
+set +e
