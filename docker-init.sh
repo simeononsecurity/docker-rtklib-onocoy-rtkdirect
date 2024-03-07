@@ -57,7 +57,7 @@ run_onocoy_server() {
             echo "ONOCOY_MOUNTPOINT: $ONOCOY_MOUNTPOINT"
             run_and_retry ntripserver -M 2 -H 127.0.0.1 -P ${TCP_OUTPUT_PORT} -O 1 -a servers.onocoy.com -p 2101 -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$PASSWORD" &
         else
-            run_and_retry str2str -in tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3 -out ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3 -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
+            run_and_retry str2str -in tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3 -out ntrips://:${PASSWORD}@servers.onocoy.com:2101/${ONOCOY_USERNAME}#rtcm3 -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
         fi
     fi
 }
