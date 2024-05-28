@@ -11,6 +11,8 @@ export TCP_OUTPUT_PORT="${TCP_OUTPUT_PORT:-5015}"
 export TCP_INPUT_PORT="${TCP_INPUT_PORT}"
 export TCP_INPUT_IP="${TCP_INPUT_IP}"
 export TCP_SERVER_SETUP_SUCCESSFUL="${TCP_SERVER_SETUP_SUCCESSFUL:-0}"
+export ONOCOY_USE_NTRIPSERVER="${ONOCOY_USE_NTRIPSERVER:-false}"
+export RTKDIRECT_USE_NTRIPSERVER="${RTKDIRECT_USE_NTRIPSERVER:-false}"
 
 # Construct SERIAL_INPUT using individual components only if TCP input is not use as a source
 if [ -z "$TCP_INPUT_PORT" ] && [ -z "$TCP_INPUT_IP" ]; then
@@ -53,28 +55,39 @@ fi
 
 # Function for running the second command
 run_onocoy_server() {
-    if [ -n "$PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
-        echo "PASSWORD: $PASSWORD"
+    # Fix legacy containers password to new onocoy_password var
+    if [ -n "$PASSWORD" ] && [ -z "$ONOCOY_PASSWORD" ]; then
+        ONOCOY_PASSWORD=$PASSWORD
+    fi
+    if [ -n "$ONOCOY_PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
+        echo "ONOCOY_USERNAME: $ONOCOY_PASSWORD"
         echo "ONOCOY_USERNAME: $ONOCOY_USERNAME"
-        if [ -n "$ONOCOY_MOUNTPOINT" ]; then
+        if [ -n "$ONOCOY_MOUNTPOINT" ] || [ "$ONOCOY_USE_NTRIPSERVER" = true ]; then
             sleep 1
             echo "ONOCOY_MOUNTPOINT: $ONOCOY_MOUNTPOINT"
             echo "STARTING NTRIPSERVER ONOCOY NTRIPv2 SERVER...."
-            run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$PASSWORD" &
+            run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" &
         else
             echo "STARTING RTKLIB ONOCOY NTRIPv1 SERVER...."
-            run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://:${PASSWORD}@servers.onocoy.com:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
+            run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://:${ONOCOY_PASSWORD}@servers.onocoy.com:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
         fi
     fi
 }
 
 # Function for running the third command
 run_rtkdirect_server() {
-    if [ -n "$PORT_NUMBER" ]; then
-        sleep 1
-        echo "PORT_NUMBER: $PORT_NUMBER"
-        echo "STARTING RTKLIB RTKDIRECT TCPSERVER...."
-        run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "tcpcli://ntrip.rtkdirect.com:${PORT_NUMBER}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
+    if [ -n "$RTKDIRECT_PASSWORD" ] && [ -n "$RTKDIRECT_USERNAME" ]; then
+        echo "RTKDIRECT_USERNAME: $RTKDIRECT_PASSWORD"
+        echo "RTKDIRECT_USERNAME: $RTKDIRECT_USERNAME"
+        echo "RTKDIRECT_MOUNTPOINT: $RTKDIRECT_MOUNTPOINT"
+        if [ "$RTKDIRECT_USE_NTRIPSERVER" = true ]; then
+            sleep 1
+            echo "STARTING NTRIPSERVER RTKDIRECT NTRIPv2 SERVER...."
+            run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "ntrip.rtkdirect.com" -p "2101" -m "$RTKDIRECT_MOUNTPOINT" -n "$RTKDIRECT_USERNAME" -c "$RTKDIRECT_PASSWORD" &
+        else
+            echo "STARTING RTKLIB RTKDIRECT NTRIPv1 SERVER...."
+            run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://${RTKDIRECT_USERNAME}:${RTKDIRECT_PASSWORD}@servers.onocoy.com:2101/${RTKDIRECT_MOUNTPOINT}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -t 0 &
+        fi
     fi
 }
 

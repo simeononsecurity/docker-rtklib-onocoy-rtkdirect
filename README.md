@@ -43,8 +43,8 @@ For recommended hardware for this project please read the following:
 
     > You don't have to specify both Onocoy and RTKDirect credentials. The backend script is smart and looks to see if they have been set. You can use one or both and this should function perfectly.
 
-   > If the environment variable `ONCOCOY_MOUNTPOINT` is specified, the docker container will use **NTRIPSERVER**, otherwise it'll use **RTKLIB** for the connection to Onocoy. The container will use RTKLIB for the splitting of the feed and connection to RTKDIRECT still however.
-   > `LAT`, `LONG`, `ELEVATION`, `INSTRAMENT`, and `ANTENNA` are all optional and are only used if `ONOCOY_MOUNTPOINT` is not specified.
+   > If the environment variable `ONCOCOY_MOUNTPOINT` or `ONOCOY_USE_NTRIPSERVER` or `RTKDIRECT_USE_NTRIPSERVER` is specified, the docker container will use **NTRIPSERVER** for Onocoy or RTKDirect respectively, otherwise it'll use **RTKLIB** for the connection to Onocoy and/or RTKDirect. The container will still use RTKLIB for the splitting of the feed no matter what.
+   > `LAT`, `LONG`, `ELEVATION`, `INSTRAMENT`, and `ANTENNA` are all optional and are only used if RTKLIB is being used and NTRIPSERVER is not.
 
    > You may specify `TCP_OUTPUT_PORT` to change the tcp server's output port if using docker's [host networking mode](https://docs.docker.com/network/#drivers). Otherwise use the appropriate docker [port mappings](https://docs.docker.com/network/#published-ports).
 
@@ -61,10 +61,12 @@ For recommended hardware for this project please read the following:
      -e DATA_BITS=<YOUR_SERIAL_DATA_BITS> \
      -e PARITY=<YOUR_SERIAL_PARITY> \
      -e STOP_BITS=<YOUR_SERIAL_STOP_BITS> \
-     -e ONOCOY_MOUNTPOINT=<YOUR_ONOCOY_MOUNTPOINT> \
+     -e ONOCOY_MOUNTPOINT=<YOUR_ONOCOY_MOUNTPOINT> \ 
      -e ONOCOY_USERNAME=<YOUR_ONOCOY_MOUNTPOINT_USERNAME> \
-     -e PASSWORD=<YOUR_ONOCOY_MOUNTPOINT_PASSWORD> \
-     -e PORT_NUMBER=<YOUR_RTKLIB_PORT_NUMBER> \
+     -e ONOCOY_PASSWORD=<YOUR_ONOCOY_MOUNTPOINT_PASSWORD> \
+     -e RTKDIRECT_MOUNTPOINT=<YOUR_RTKDIRECT_MOUNTPOINT> \
+     -e RTKDIRECT_USERNAME=<YOUR_RTKDIRECT_MOUNTPOINT_USERNAME> \
+     -e RTKDIRECT_PASSWORD=<YOUR_RTKDIRECT_MOUNTPOINT_PASSWORD> \
      -e LAT=<OPTIONAL_YOUR_LATITUDE> \
      -e LONG=<OPTIONAL_YOUR_LONGITUDE> \
      -e ELEVATION=<OPTIONAL_YOUR_ELEVATION_FROM_SEA_LEVEL_IN_METERS> \
@@ -87,10 +89,12 @@ For recommended hardware for this project please read the following:
     -e DATA_BITS=8 \
     -e PARITY=n \
     -e STOP_BITS=1 \
-    -e ONOCOY_MOUNTPOINT=your_onocoy_mountpoint \
-    -e ONOCOY_USERNAME=your_onocoy_mountpoint_username \
-    -e PASSWORD=your_onocoy_mountpoint_password \
-    -e PORT_NUMBER=32377 \
+    -e ONOCOY_MOUNTPOINT=YOUR_ONOCOY_MOUNTPOINT \
+    -e ONOCOY_USERNAME=YOUR_ONOCOY_MOUNTPOINT_USERNAME \
+    -e ONOCOY_PASSWORD=YOUR_ONOCOY_MOUNTPOINT_PASSWORD \
+    -e RTKDIRECT_MOUNTPOINT=YOUR_RTKDIRECT_MOUNTPOINT \
+    -e RTKDIRECT_USERNAME=YOUR_RTKDIRECT_MOUNTPOINT_USERNAME \
+    -e RTKDIRECT_PASSWORD=YOUR_RTKDIRECT_MOUNTPOINT_PASSWORD \
     -e LAT=37.7749 \
     -e LONG=-122.4194 \
     -e ELEVATION=50 \
@@ -127,76 +131,6 @@ This will start the container in detached mode.
 - Adjust environment variables according to your specific requirements.
 
 Now you have a Dockerized RTKLIB setup with ONOCOY and RTKDIRECT support. Customize the configuration based on your needs and enjoy precise real-time kinematic positioning!
-
-## Dockerfile
-
-The `Dockerfile` in this repository sets up the Docker image. It follows these main steps:
-
-1. Uses Ubuntu as the base image.
-2. Installs RTKLIB from the package manager.
-3. Sets the working directory to `/app`.
-4. Copies the `docker-init.sh` script into the container.
-5. Makes the script executable.
-6. Defines the command to run the script when the container starts.
-
-Here's a breakdown of the Dockerfile:
-
-```Dockerfile
-# Use Ubuntu as the base image
-FROM ubuntu:latest
-
-# Install RTKLIB from the package manager
-RUN apt update && \
-    apt full-upgrade -y --no-install-recommends && \
-    apt install -y rtklib --no-install-recommends
-
-# Set the working directory
-WORKDIR /app
-
-# Copy the script into the container
-COPY docker-init.sh /app/docker-init.sh
-
-# Make the script executable
-RUN chmod +x /app/docker-init.sh
-
-# Run the script when the container starts
-CMD ["/app/docker-init.sh"]
-```
-
-## Initialization Script
-
-The `docker-init.sh` script sets up environment variables and runs `str2str` commands for RTKLIB. It accepts various parameters, allowing customization of the RTKLIB configuration.
-
-```bash
-#!/bin/bash
-
-# Set environment variables
-export TCP_SERVER_OUTPUT="tcpsvr://:5015#rtcm3"
-export ONOCOY_USERNAME="$ONOCOY_USERNAME"
-
-# ... (other environment variable setups)
-
-# Exit immediately if a command fails
-set -e
-
-# Run the first command only if all required parameters are specified
-if [ -n "$SERIAL_INPUT" ] && [ -n "$TCP_SERVER_OUTPUT" ]; then
-    str2str -in "$SERIAL_INPUT" -out "$TCP_SERVER_OUTPUT" -b 1 -t 0 &
-
-    # Run the second command only if all required parameters are specified
-    if [ -n "$PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ] && [ -n "$NTRIPS_OUTPUT" ]; then
-        str2str -in tcpcli://localhost:5015#rtcm3 -out "ntrips://:$PASSWORD@servers.onocoy.com:2101/$ONOCOY_USERNAME#rtcm3" $RTCM_MSG_COMMON &
-    fi
-
-    # Run the third command only if all required parameters are specified
-    if [ -n "$PORT_NUMBER" ]; then
-        str2str -in tcpcli://localhost:5015#rtcm3 -out "tcpcli://ntrip.rtkdirect.com:$PORT_NUMBER#rtcm3" $RTCM_MSG_COMMON &
-    fi
-fi
-
-# Reset the 'exit immediately' option
-set +e
-```
 
 This script sets up environment variables, configures `str2str` commands based on specified parameters, and runs them in the background.
 
