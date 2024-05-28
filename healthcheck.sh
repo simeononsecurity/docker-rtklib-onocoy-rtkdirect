@@ -15,16 +15,16 @@ str2str_count=1
 ntripservercheck=false
 str2strcheck=false
 
-# Adjust ntripserver count based on conditions
-if [ "$RTKDIRECT_USE_NTRIPSERVER" = true ]; then
+# Adjust ntripserver and str2str count based on conditions that require them in the docker-init.sh
+if [ "$RTKDIRECT_USE_NTRIPSERVER" = true ] && [ -n "$RTKDIRECT_USERNAME" ] && [ -n "$RTKDIRECT_MOUNTPOINT" ] && [ -n "$RTKDIRECT_PASSWORD" ]; then
     ntripserver_count=$((ntripserver_count + 1))
-else
+elif [ "$RTKDIRECT_USE_NTRIPSERVER" != true ] && [ -n "$RTKDIRECT_USERNAME" ] && [ -n "$RTKDIRECT_MOUNTPOINT" ] && [ -n "$RTKDIRECT_PASSWORD" ]; then
     str2str_count=$((str2str_count + 1))
 fi
 
 if [ -n "$ONOCOY_MOUNTPOINT" ] || [ "$ONOCOY_USE_NTRIPSERVER" = true ]; then
     ntripserver_count=$((ntripserver_count + 1))
-else
+elif [ -z "$ONOCOY_MOUNTPOINT" ] && [ "$ONOCOY_USE_NTRIPSERVER" != true ] && [ -n "$ONOCOY_USERNAME" ] && [ -n "$ONOCOY_PASSWORD" ]; then
     str2str_count=$((str2str_count + 1))
 fi
 
