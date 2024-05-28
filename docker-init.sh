@@ -76,7 +76,7 @@ run_onocoy_server() {
 
 # Function for running the third command
 run_rtkdirect_server() {
-    if [ -n "$RTKDIRECT_PASSWORD" ] && [ -n "$RTKDIRECT_USERNAME" ]; then
+    if [ -n "$RTKDIRECT_PASSWORD" ] && [ -n "$RTKDIRECT_USERNAME" ] && [ -n "$RTKDIRECT_MOUNTPOINT" ]; then
         echo "RTKDIRECT_USERNAME: $RTKDIRECT_PASSWORD"
         echo "RTKDIRECT_USERNAME: $RTKDIRECT_USERNAME"
         echo "RTKDIRECT_MOUNTPOINT: $RTKDIRECT_MOUNTPOINT"
