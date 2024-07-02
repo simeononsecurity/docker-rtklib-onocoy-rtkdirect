@@ -131,3 +131,4 @@ done
 
 # Reset the 'exit immediately' option
 set +e
+
