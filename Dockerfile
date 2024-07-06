@@ -17,7 +17,7 @@ RUN git clone -b demo5 https://github.com/rtklibexplorer/RTKLIB.git
 # Change to str2str dir
 WORKDIR /app/RTKLIB/app/consapp/str2str/gcc
 # Check out the specific tag and create a new branch from it
-RUN git checkout tags/b34j -b demo5
+RUN git checkout tags/b34j -b docker-b34j
 # Build str2str
 RUN make
 
