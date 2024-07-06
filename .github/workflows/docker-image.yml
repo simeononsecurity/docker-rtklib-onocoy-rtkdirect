@@ -49,5 +49,5 @@ jobs:
             linux/ppc64le
             linux/s390x
           file: Dockerfile
-          tags: ${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest, ghcr.io/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
+          tags: docker-rtklib-onocoy-rtkdirect:latest, ${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest, ghcr.io/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
           github-token: ${{ secrets.PAT_TOKEN }}
