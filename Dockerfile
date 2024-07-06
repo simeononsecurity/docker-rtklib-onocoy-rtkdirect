@@ -14,8 +14,11 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 RUN git clone -b demo5 https://github.com/rtklibexplorer/RTKLIB.git
 
-# Build str2str
+# Change to str2str dir
 WORKDIR /app/RTKLIB/app/consapp/str2str/gcc
+# Check out the specific tag and create a new branch from it
+RUN git checkout tags/b34j -b demo5
+# Build str2str
 RUN make
 
 # Clone and build NTRIP server
