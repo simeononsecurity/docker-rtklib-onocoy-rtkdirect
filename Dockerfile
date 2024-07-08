@@ -40,10 +40,10 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV container docker
 ENV TERM=xterm
 
-# Install RTKLIB, GPSD dependencies, and other necessary tools from the package manager
+# Install RTKLIB, GPSD dependencies, stunnel, and other necessary tools from the package manager
 RUN apt update && \
     apt full-upgrade -y --no-install-recommends && \
-    apt install -y gpsd gpsd-clients gpsbabel procps && \
+    apt install -y gpsd gpsd-clients gpsbabel procps stunnel4 && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy the compiled str2str from the build stage
@@ -70,5 +70,14 @@ COPY docker-init.sh /app/docker-init.sh
 # Make the script executable
 RUN chmod +x /app/docker-init.sh
 
-# Run the script when the container starts
-CMD ["/app/docker-init.sh"]
+# Copy stunnel configuration
+COPY stunnel.conf /etc/stunnel/stunnel.conf
+
+# Generate a self-signed certificate for stunnel
+RUN mkdir -p /etc/stunnel && \
+    openssl req -new -x509 -days 365 -nodes \
+    -out /etc/stunnel/stunnel.pem -keyout /etc/stunnel/stunnel.pem \
+    -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=localhost"
+
+# Start stunnel and the main application
+CMD ["sh", "-c", "stunnel /etc/stunnel/stunnel.conf && /app/docker-init.sh"]
