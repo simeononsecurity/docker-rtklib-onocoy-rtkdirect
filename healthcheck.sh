@@ -14,6 +14,8 @@ str2str_count=1
 # Boolean flag for server checks
 ntripservercheck=false
 str2strcheck=false
+stunnelcheck=false
+check_onocoy_ssl=false
 
 # Adjust ntripserver and str2str count based on conditions that require them in the docker-init.sh
 if [ "$RTKDIRECT_USE_NTRIPSERVER" = true ] && [ -n "$RTKDIRECT_USERNAME" ] && [ -n "$RTKDIRECT_MOUNTPOINT" ] && [ -n "$RTKDIRECT_PASSWORD" ]; then
@@ -24,8 +26,10 @@ fi
 
 if [ -n "$ONOCOY_MOUNTPOINT" ] || [ "$ONOCOY_USE_NTRIPSERVER" = true ]; then
     ntripserver_count=$((ntripserver_count + 1))
+    check_onocoy_ssl=true
 elif [ -z "$ONOCOY_MOUNTPOINT" ] && [ "$ONOCOY_USE_NTRIPSERVER" != true ] && [ -n "$ONOCOY_USERNAME" ] && [ -n "$ONOCOY_PASSWORD" ]; then
     str2str_count=$((str2str_count + 1))
+    check_onocoy_ssl=true
 fi
 
 # Check NTRIPSERVER Count
@@ -54,10 +58,22 @@ else
     fi
 fi
 
-if [ "$ntripservercheck" = false ] || [ "$str2strcheck" = false ]; then
-    # If either check is false, exit with error (unhealthy)
+# Check for a single instance of stunnel if ONOCOY_USE_SSL is enabled and check_onocoy_ssl exists and is true
+if [ "$ONOCOY_USE_SSL" = true ] && [ "$check_onocoy_ssl" = true ]; then
+    stunnel_count=$(pgrep -c stunnel)
+    if [ "$stunnel_count" -ne 1 ]; then
+        stunnelcheck=false
+    else
+        stunnelcheck=true
+    fi
+else
+    stunnelcheck=true
+fi
+
+if [ "$ntripservercheck" = false ] || [ "$str2strcheck" = false ] || [ "$stunnelcheck" = false ]; then
+    # If any check is false, exit with error (unhealthy)
     exit 1
 else
-    # If both checks are true, exit with success (healthy)
+    # If all checks are true, exit with success (healthy)
     exit 0
 fi
