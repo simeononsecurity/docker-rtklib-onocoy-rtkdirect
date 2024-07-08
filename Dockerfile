@@ -80,4 +80,4 @@ RUN mkdir -p /etc/stunnel && \
     -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=localhost"
 
 # Start stunnel and the main application
-CMD ["sh", "-c", "stunnel /etc/stunnel/stunnel.conf && /app/docker-init.sh"]
+CMD ["/app/docker-init.sh"]
