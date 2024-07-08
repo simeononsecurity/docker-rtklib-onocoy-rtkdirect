@@ -49,5 +49,7 @@ jobs:
             linux/ppc64le
             linux/s390x
           file: Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: ${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest, ghcr.io/${{ secrets.DOCKER_USERNAME }}/docker-rtklib-onocoy-rtkdirect:latest
           github-token: ${{ secrets.PAT_TOKEN }}
