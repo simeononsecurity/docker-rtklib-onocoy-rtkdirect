@@ -50,6 +50,19 @@ For recommended hardware for this project please read the following:
 
    > You can host any RTKLIB or tcp server instance on another machine and retreive the data using our dockers tcp client mode by defining `TCP_INPUT_IP` and `TCP_INPUT_PORT`. In which you'll specify your tcp servers ip and port.
 
+   > **Note:** Always consult your receiver manufactures documentation to get the correct serial connection information such as `baud rate`, `data bits`, `partity`, and `stop bits`.
+   
+   **Known Default Serial Settings for the Following GPS Receivers**
+   
+   | GPS Receiver    | Baud Rate (bps) | Data Bits | Parity | Stop Bits |
+   |-----------------|------------------|-----------|--------|-----------|
+   | UM980           | 115200           | 8         | None   | 1         |
+   | UM982           | 115200           | 8         | None   | 1         |
+   | Bynav M20       | 115200           | 8         | None   | 1         |
+   | Bynav M21       | 115200           | 8         | None   | 1         |
+   | Ublox F9P       | 38400            | 8         | None   | 1         |
+   | Ublox M8*       | 9600             | 8         | None   | 1         |
+
    ```bash
    docker run \
      -td \
