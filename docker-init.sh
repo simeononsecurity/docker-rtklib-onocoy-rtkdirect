@@ -2,7 +2,7 @@
 
 # Set default values for SERIAL_INPUT components
 export USB_PORT="${USB_PORT:-ttyUSB0}"
-export BAUD_RATE="${BAUD_RATE:-921600}"
+export BAUD_RATE="${BAUD_RATE:-115200}"
 export DATA_BITS="${DATA_BITS:-8}"
 export PARITY="${PARITY:-n}"
 export STOP_BITS="${STOP_BITS:-1}"
