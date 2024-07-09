@@ -2,13 +2,13 @@
 
 [![Docker Image CI](https://github.com/simeononsecurity/docker-rtklib-onocoy-rtkdirect/actions/workflows/docker-image.yml/badge.svg)](https://github.com/simeononsecurity/docker-rtklib-onocoy-rtkdirect/actions/workflows/docker-image.yml)
 
-This Docker image provides a convenient setup for running [RTKLIB](https://www.rtklib.com/) and [NTRIPSERVER](https://github.com/simeononsecurity/ntripserver) with support for [ONOCOY](https://www.onocoy.com/) and [RTKDIRECT](https://rtkdirect.com/) services. 
+This Docker image provides a convenient setup for running [RTKLIB](https://www.rtklib.com/) and [NTRIPSERVER](https://github.com/simeononsecurity/ntripserver) with support for [ONOCOY](https://www.onocoy.com/) and [RTKDIRECT](https://rtkdirect.com/) services.
 
 The image follows the guides we created for the individual services. If you'd like to do this manually, without Docker, please read the articles listed below:
 
-- https://simeononsecurity.com/other/onocoy-gps-gnss-reciever-basestation-on-a-budget/
-- https://simeononsecurity.com/other/diy-rtkdirect-reference-station-guide/
-- https://simeononsecurity.com/other/triple-mining-geodnet-onocoy-rtkdirect-gps-revolution/
+- [ONOCOY GPS/GNSS Receiver Basestation on a Budget](https://simeononsecurity.com/other/onocoy-gps-gnss-reciever-basestation-on-a-budget/)
+- [DIY RTKDirect Reference Station Guide](https://simeononsecurity.com/other/diy-rtkdirect-reference-station-guide/)
+- [Triple Mining Geodnet, Onocoy, and RTKDirect GPS Revolution](https://simeononsecurity.com/other/triple-mining-geodnet-onocoy-rtkdirect-gps-revolution/)
 
 Follow the instructions below to use this image effectively.
 
