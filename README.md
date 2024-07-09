@@ -23,9 +23,9 @@ Before using this Docker image, make sure you have the following prerequisites i
 
 For recommended hardware for this project please read the following:
 
-- https://simeononsecurity.com/other/triple-mining-geodnet-onocoy-rtkdirect-gps-revolution/#hardware-requirements
-- https://simeononsecurity.com/other/unveiling-best-gps-antennas-onocoy-geodnet/
-- https://simeononsecurity.com/other/affordable-precision-positioning-gnss-modules/
+- [Triple Mining Geodnet, Onocoy, and RTKDirect GPS Revolution - Hardware Requirements](https://simeononsecurity.com/other/triple-mining-geodnet-onocoy-rtkdirect-gps-revolution/#hardware-requirements)
+- [Unveiling the Best GPS Antennas for Onocoy and Geodnet](https://simeononsecurity.com/other/unveiling-best-gps-antennas-onocoy-geodnet/)
+- [Affordable Precision Positioning GNSS Modules](https://simeononsecurity.com/other/affordable-precision-positioning-gnss-modules/)
 
 ## Getting Started
 
@@ -157,4 +157,5 @@ Feel free to customize the script and Dockerfile to meet your specific RTKLIB co
 </a>
 
 ## References
-- https://kb.shawnchen.info/knowledge-base/docker/give-access-to-host-usb-for-serial-device-on-docker-container/
+
+- [Give Access to Host USB for Serial Device on Docker Container](https://kb.shawnchen.info/knowledge-base/docker/give-access-to-host-usb-for-serial-device-on-docker-container/)
