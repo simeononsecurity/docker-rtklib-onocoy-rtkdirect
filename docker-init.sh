@@ -20,9 +20,6 @@ if [ -z "$TCP_INPUT_PORT" ] && [ -z "$TCP_INPUT_IP" ]; then
     export SERIAL_INPUT="serial://ttyS0fake0:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
     export SERIAL_INPUT2="serial://ttyS0fake1:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
     export SERIAL_INPUT3="serial://ttyS0fake2:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
-    echo "SERIAL_INPUT: $SERIAL_INPUT"
-    echo "SERIAL_INPUT2: $SERIAL_INPUT2"
-    echo "SERIAL_INPUT3: $SERIAL_INPUT3"
 fi
 
 # Exit immediately if a command fails
@@ -152,7 +149,9 @@ run_rtkdirect_server() {
 
 # Run the first command only if all required parameters are specified
 if [ -n "$SERIAL_INPUT" ]; then
-    echo "SERIAL_INPUT is \"$SERIAL_INPUT\""
+    echo "SERIAL_INPUT: \"$SERIAL_INPUT\""
+    echo "SERIAL_INPUT2: \"$SERIAL_INPUT2\""
+    echo "SERIAL_INPUT3: \"$SERIAL_INPUT3\""
     echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
     echo "STARTING RTKLIB SERIAL INPUT TCPSERVER...."
     setup_virtual_devices
