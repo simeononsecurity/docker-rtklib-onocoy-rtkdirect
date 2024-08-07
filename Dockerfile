@@ -56,7 +56,7 @@ ENV TERM=xterm
 # Install RTKLIB, GPSD dependencies, stunnel, and other necessary tools from the package manager
 RUN apt update && \
     apt full-upgrade -y --no-install-recommends && \
-    apt install -y gpsd gpsd-clients gpsbabel procps stunnel4 && \
+    apt install -y gpsd gpsd-clients gpsbabel procps stunnel4 socat && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy the compiled str2str from the build stage
