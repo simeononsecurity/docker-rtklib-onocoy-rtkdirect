@@ -44,7 +44,7 @@ ENV TERM=xterm
 RUN apt-get update -y && \
     apt install -y apt-utils && \
     apt-get full-upgrade -y -o Dpkg::Options::="--force-confnew" && \
-    apt-get install -y --no-install-recommends gpsd gpsd-clients gpsbabel procps stunnel4 socat && \
+    apt-get install -y --no-install-recommends procps stunnel4 socat && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy the compiled str2str from the build stage
