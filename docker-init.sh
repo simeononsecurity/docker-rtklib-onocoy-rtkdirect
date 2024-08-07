@@ -156,11 +156,11 @@ if [ -n "$SERIAL_INPUT" ]; then
     echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
     echo "STARTING RTKLIB SERIAL INPUT TCPSERVER...."
     setup_virtual_devices
-    run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
+    run_and_retry str2str -in "$SERIAL_INPUT3" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
     export NTRIPSERVERINPUT1="ntripserver -M 1 -i \"/dev/ttyS0fake1\" -b \"${BAUD_RATE}\""
-    export STR2STRINPUT1="str2str -in \"$SERIAL_INPUT2\""
+    export STR2STRINPUT1="str2str -in \"$SERIAL_INPUT\""
     export NTRIPSERVERINPUT2="ntripserver -M 1 -i \"/dev/ttyS0fake2\" -b \"${BAUD_RATE}\""
-    export STR2STRINPUT2="str2str -in \"$SERIAL_INPUT3\""
+    export STR2STRINPUT2="str2str -in \"$SERIAL_INPUT2\""
     TCP_SERVER_SETUP_SUCCESSFUL=1
 else
     echo "No Serial / USB Option Specified, Checking for TCP Input Options..."
