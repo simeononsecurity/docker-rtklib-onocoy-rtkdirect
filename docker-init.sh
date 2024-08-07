@@ -12,8 +12,8 @@ export TCP_INPUT_PORT="${TCP_INPUT_PORT}"
 export TCP_INPUT_IP="${TCP_INPUT_IP}"
 export TCP_SERVER_SETUP_SUCCESSFUL="${TCP_SERVER_SETUP_SUCCESSFUL:-0}"
 export ONOCOY_USE_SSL="${ONOCOY_USE_SSL:-true}"
-export ONOCOY_USE_NTRIPSERVER="${ONOCOY_USE_NTRIPSERVER:-false}"
-export RTKDIRECT_USE_NTRIPSERVER="${RTKDIRECT_USE_NTRIPSERVER:-false}"
+export ONOCOY_USE_NTRIPSERVER="${ONOCOY_USE_NTRIPSERVER:-true}"
+export RTKDIRECT_USE_NTRIPSERVER="${RTKDIRECT_USE_NTRIPSERVER:-true}"
 
 # Construct SERIAL_INPUT using individual components only if TCP input is not use as a source
 if [ -z "$TCP_INPUT_PORT" ] && [ -z "$TCP_INPUT_IP" ]; then
@@ -43,34 +43,29 @@ handle_error() {
     exit 1
 }
 
-# Function to set up virtual serial bus and devices
+# Function to set up virtual serial bus and devices using socat
 setup_virtual_devices() {
     local bus_path="/tmp/ttyS0mux"
     local real_device="/dev/${USB_PORT}"
     local fake_devices=("/dev/ttyS0fake0" "/dev/ttyS0fake1" "/dev/ttyS0fake2")
 
-    echo "Setting up virtual serial bus and devices..."
+    echo "Setting up virtual serial bus and devices using socat..."
 
-    # 1. Create a new tty_bus
-    echo "Creating tty_bus..."
-    if tty_bus -d -s "${bus_path}"; then
-        echo "tty_bus created successfully."
+    # 1. Start the socat-mux.sh script to create a UNIX domain socket listener
+    echo "Starting socat-mux.sh..."
+    socat-mux.sh -d -d UNIX-L:${bus_path},fork FILE:${real_device},raw,echo=0 &
+    if [ $? -eq 0 ]; then
+        echo "socat-mux.sh started successfully."
     else
-        handle_error "Failed to create tty_bus."
+        handle_error "Failed to start socat-mux.sh."
     fi
 
-    # 2. Connect the real device to the bus using tty_attach
-    echo "Attaching real device to tty_bus..."
-    if tty_attach -d -s "${bus_path}" "${real_device}"; then
-        echo "Real device attached successfully."
-    else
-        handle_error "Failed to attach real device to tty_bus."
-    fi
-
-    # 3. Create fake devices attached to the bus
-    for fake_device in "${fake_devices[@]}"; do
+    # 2. Create fake devices attached to the bus using socat
+    for i in "${!fake_devices[@]}"; do
+        fake_device="${fake_devices[$i]}"
         echo "Creating fake device ${fake_device}..."
-        if tty_fake -d -s "${bus_path}" "${fake_device}"; then
+        socat -d -d PTY,raw,echo=0,link=${fake_device} UNIX:${bus_path} &
+        if [ $? -eq 0 ]; then
             echo "${fake_device} created successfully."
         else
             handle_error "Failed to create ${fake_device}."
