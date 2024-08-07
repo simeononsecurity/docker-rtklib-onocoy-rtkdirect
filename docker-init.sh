@@ -78,6 +78,7 @@ setup_virtual_devices() {
     done
 
     echo "Virtual devices created: ${fake_devices[*]}"
+    ls -la /dev/ttyS0fake0 && ls -la /dev/ttyS0fake1 && ls -la /dev/ttyS0fake2
 }
 
 # Check if LAT, LONG, and ELEVATION are specified
@@ -115,7 +116,7 @@ run_onocoy_server() {
                 stunnel /etc/stunnel/stunnel.conf &
                 run_and_retry eval $NTRIPSERVERINPUT1 -O 1 -a "127.0.0.1" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
             else
-                run_and_retry eval $NTRIPSERVERINPUT1 -b "${BAUD_RATE}" -O 1 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
+                run_and_retry eval $NTRIPSERVERINPUT1 -O 1 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
             fi
         else
             echo "STARTING RTKLIB ONOCOY NTRIPv1 SERVER...."
