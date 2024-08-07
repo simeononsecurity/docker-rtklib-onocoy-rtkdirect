@@ -59,7 +59,7 @@ COPY healthcheck.sh /usr/local/bin/healthcheck.sh
 RUN chmod +x /usr/local/bin/healthcheck.sh
 
 # Healthcheck configuration
-HEALTHCHECK --interval=30s --timeout=60s --start-period=30s --retries=3 CMD /usr/local/bin/healthcheck.sh
+#HEALTHCHECK --interval=30s --timeout=60s --start-period=30s --retries=3 CMD /usr/local/bin/healthcheck.sh
 
 # Set the working directory
 WORKDIR /app
