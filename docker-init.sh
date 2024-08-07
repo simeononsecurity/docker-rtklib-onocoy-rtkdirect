@@ -17,7 +17,9 @@ export RTKDIRECT_USE_NTRIPSERVER="${RTKDIRECT_USE_NTRIPSERVER:-false}"
 
 # Construct SERIAL_INPUT using individual components only if TCP input is not use as a source
 if [ -z "$TCP_INPUT_PORT" ] && [ -z "$TCP_INPUT_IP" ]; then
-    export SERIAL_INPUT="serial://${USB_PORT}:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
+    export SERIAL_INPUT="serial://ttyS0fake0:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
+    export SERIAL_INPUT2="serial://ttyS0fake1:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
+    export SERIAL_INPUT3="serial://ttyS0fake1:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
 fi
 
 # Exit immediately if a command fails
@@ -35,6 +37,48 @@ run_and_retry() {
     done
 }
 
+# Function to handle errors
+handle_error() {
+    echo "Error occurred: $1"
+    exit 1
+}
+
+# Function to set up virtual serial bus and devices
+setup_virtual_devices() {
+    local bus_path="/tmp/ttyS0mux"
+    local real_device="/dev/${USB_PORT}"
+    local fake_devices=("/dev/ttyS0fake0" "/dev/ttyS0fake1" "/dev/ttyS0fake2")
+
+    echo "Setting up virtual serial bus and devices..."
+
+    # 1. Create a new tty_bus
+    echo "Creating tty_bus..."
+    if tty_bus -d -s "${bus_path}"; then
+        echo "tty_bus created successfully."
+    else
+        handle_error "Failed to create tty_bus."
+    fi
+
+    # 2. Connect the real device to the bus using tty_attach
+    echo "Attaching real device to tty_bus..."
+    if tty_attach -d -s "${bus_path}" "${real_device}"; then
+        echo "Real device attached successfully."
+    else
+        handle_error "Failed to attach real device to tty_bus."
+    fi
+
+    # 3. Create fake devices attached to the bus
+    for fake_device in "${fake_devices[@]}"; do
+        echo "Creating fake device ${fake_device}..."
+        if tty_fake -d -s "${bus_path}" "${fake_device}"; then
+            echo "${fake_device} created successfully."
+        else
+            handle_error "Failed to create ${fake_device}."
+        fi
+    done
+
+    echo "Virtual devices created: ${fake_devices[*]}"
+}
 
 # Check if LAT, LONG, and ELEVATION are specified
 if [ -n "$LAT" ] && [ -n "$LONG" ] && [ -n "$ELEVATION" ]; then
@@ -69,17 +113,17 @@ run_onocoy_server() {
             echo "STARTING NTRIPSERVER ONOCOY NTRIPv2 SERVER...."
             if [ "$ONOCOY_USE_SSL" = true ]; then
                 stunnel /etc/stunnel/stunnel.conf &
-                run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "127.0.0.1" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
+                run_and_retry eval $NTRIPSERVERINPUT1 -O 1 -a "127.0.0.1" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
             else
-                run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
+                run_and_retry eval $NTRIPSERVERINPUT1 -b "${BAUD_RATE}" -O 1 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
             fi
         else
             echo "STARTING RTKLIB ONOCOY NTRIPv1 SERVER...."
             if [ "$ONOCOY_USE_SSL" = true ]; then
                 stunnel /etc/stunnel/stunnel.conf &
-                run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://:${ONOCOY_PASSWORD}@127.0.0.1:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
+                run_and_retry eval $STR2STRINPUT1 -out "ntrips://:${ONOCOY_PASSWORD}@127.0.0.1:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
             else
-                run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://:${ONOCOY_PASSWORD}@servers.onocoy.com:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
+                run_and_retry eval $STR2STRINPUT1 -out "ntrips://:${ONOCOY_PASSWORD}@servers.onocoy.com:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
             fi
         fi
     fi
@@ -94,10 +138,10 @@ run_rtkdirect_server() {
         if [ "$RTKDIRECT_USE_NTRIPSERVER" = true ]; then
             sleep 1
             echo "STARTING NTRIPSERVER RTKDIRECT NTRIPv2 SERVER...."
-            run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "ntrip.rtkdirect.com" -p "2101" -m "$RTKDIRECT_MOUNTPOINT" -n "$RTKDIRECT_USERNAME" -c "$RTKDIRECT_PASSWORD" -R 5 &
+            run_and_retry eval $NTRIPSERVERINPUT2 -O 1 -a "ntrip.rtkdirect.com" -p "2101" -m "$RTKDIRECT_MOUNTPOINT" -n "$RTKDIRECT_USERNAME" -c "$RTKDIRECT_PASSWORD" -R 5 &
         else
             echo "STARTING RTKLIB RTKDIRECT NTRIPv1 SERVER...."
-            run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://${RTKDIRECT_USERNAME}:${RTKDIRECT_PASSWORD}@ntrip.rtkdirect.com:2101/${RTKDIRECT_MOUNTPOINT}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
+            run_and_retry eval $STR2STRINPUT2 -out "ntrips://${RTKDIRECT_USERNAME}:${RTKDIRECT_PASSWORD}@ntrip.rtkdirect.com:2101/${RTKDIRECT_MOUNTPOINT}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
         fi
     fi
 }
@@ -107,8 +151,12 @@ if [ -n "$SERIAL_INPUT" ]; then
     echo "SERIAL_INPUT is \"$SERIAL_INPUT\""
     echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
     echo "STARTING RTKLIB SERIAL INPUT TCPSERVER...."
-    #run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
-    run_and_retry ntripserver  -M 1 -i /dev/${USB_PORT} -b ${BAUD_RATE} -O 5 -a 0.0.0.0 -p ${TCP_OUTPUT_PORT} &
+    setup_virtual_devices
+    run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
+    export NTRIPSERVERINPUT1="ntripserver -M 1 -i \"/dev/ttyS0fake1\" -b \"${BAUD_RATE}\""
+    export STR2STRINPUT1="str2str -in \"$SERIAL_INPUT1\""
+    export NTRIPSERVERINPUT2="ntripserver -M 1 -i \"/dev/ttyS0fake2\" -b \"${BAUD_RATE}\""
+    export STR2STRINPUT2="str2str -in \"$SERIAL_INPUT2\""
     TCP_SERVER_SETUP_SUCCESSFUL=1
 else
     echo "No Serial / USB Option Specified, Checking for TCP Input Options..."
@@ -118,9 +166,11 @@ else
         echo "TCP_INPUT_IP is \"$TCP_INPUT_IP\""
         echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
         echo "STARTING RTKLIB TCP INPUT TCPSERVER...."
-        #run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
-        ./ntripserver -M 2 -H ${TCP_INPUT_IP} -P ${TCP_INPUT_PORT} -O 5 -a 0.0.0.0 -p ${TCP_OUTPUT_PORT}
-
+        run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
+        export NTRIPSERVERINPUT1="ntripserver -M 2 -H \"127.0.0.1\" -P \"${TCP_OUTPUT_PORT}\""
+        export STR2STRINPUT1="str2str -in \"tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3\""
+        export NTRIPSERVERINPUT2="ntripserver -M 2 -H \"127.0.0.1\" -P \"${TCP_OUTPUT_PORT}\""
+        export STR2STRINPUT2="str2str -in \"tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3\""
         TCP_SERVER_SETUP_SUCCESSFUL=1
     else
         echo "TCP Input IP or Port not specified. Please define TCP_INPUT_IP and TCP_INPUT_PORT."
