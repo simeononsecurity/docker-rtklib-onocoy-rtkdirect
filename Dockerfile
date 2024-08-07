@@ -65,11 +65,12 @@ COPY --from=builder /app/RTKLIB/app/consapp/str2str/gcc/str2str /usr/local/bin/s
 # Copy the compiled NTRIP server from the build stage
 COPY --from=builder /app/ntripserver/ntripserver /usr/local/bin/ntripserver
 
-COPY --from=build /usr/src/ttybus/tty_bus /usr/local/bin/
-COPY --from=build /usr/src/ttybus/tty_fake /usr/local/bin/
-COPY --from=build /usr/src/ttybus/tty_plug /usr/local/bin/
-COPY --from=build /usr/src/ttybus/tty_attach /usr/local/bin/
-COPY --from=build /usr/src/ttybus/dpipe /usr/local/bin/
+# Copy tty binaries from the build stage
+COPY --from=builder /usr/src/ttybus/tty_bus /usr/local/bin/
+COPY --from=builder /usr/src/ttybus/tty_fake /usr/local/bin/
+COPY --from=builder /usr/src/ttybus/tty_plug /usr/local/bin/
+COPY --from=builder /usr/src/ttybus/tty_attach /usr/local/bin/
+COPY --from=builder /usr/src/ttybus/dpipe /usr/local/bin/
 
 # Copy the healthcheck script into the container
 COPY healthcheck.sh /usr/local/bin/healthcheck.sh
