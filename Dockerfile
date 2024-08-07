@@ -41,12 +41,11 @@ ENV container docker
 ENV TERM=xterm
 
 # Install RTKLIB, GPSD dependencies, stunnel, and other necessary tools from the package manager
-RUN apt-get update -y && \
-    apt install -y apt-utils && \
-    apt-get full-upgrade -y --no-install-recommends -o Dpkg::Options::="--force-confnew" && \
-    apt-get install -y --no-install-recommends procps && \
+RUN apt update -y && \
+    apt install -y apt-utils procps && \
+    apt full-upgrade -y --no-install-recommends -o Dpkg::Options::="--force-confnew" && \
     rm -rf /var/lib/apt/lists/*
-RUN apt-get install -y --no-install-recommends stunnel4 socat
+RUN apt update && apt install -y --no-install-recommends stunnel4 socat
 
 # Copy the compiled str2str from the build stage
 COPY --from=builder /app/RTKLIB/app/consapp/str2str/gcc/str2str /usr/local/bin/str2str
