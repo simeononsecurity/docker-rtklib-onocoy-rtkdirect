@@ -62,7 +62,7 @@ setup_virtual_devices() {
 
     # 1. Start the socat-mux.sh script to create a UNIX domain socket listener
     echo "Starting socat-mux.sh..."
-    socat-mux.sh -d -d UNIX-L:${bus_path},fork FILE:${real_device},raw,echo=0 &
+    socat-mux.sh -d -d UNIX-L:${bus_path},fork FILE:${real_device},raw,echo=0 > /dev/null 2>&1 &
     mux_pid=$!
     sleep 2  # Wait for the mux to set up the socket
 
