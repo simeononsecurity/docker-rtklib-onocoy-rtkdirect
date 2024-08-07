@@ -46,6 +46,7 @@ handle_error() {
 # Function to set up virtual serial bus and devices using socat
 # Function to set up virtual serial bus and devices using socat
 # Function to set up virtual serial bus and devices using socat
+# Function to set up virtual serial bus and devices using socat
 setup_virtual_devices() {
     local bus_path="/tmp/ttyS0mux"
     local real_device="/dev/${USB_PORT}"
@@ -79,7 +80,7 @@ setup_virtual_devices() {
     # 2. Create fake devices attached to the bus using socat
     for fake_device in "${fake_devices[@]}"; do
         echo "Creating fake device ${fake_device}..."
-        socat -d -d PTY,raw,echo=0,link=${fake_device} UNIX:${bus_path} &
+        socat -d -d PTY,raw,echo=0,link=${fake_device} UNIX:${bus_path} > /dev/null 2>&1 &
         if [ $? -ne 0 ]; then
             handle_error "Failed to create ${fake_device}."
         else
