@@ -27,19 +27,6 @@ RUN git clone https://github.com/simeononsecurity/ntripserver.git && \
     cd ntripserver && \
     make
 
-# Set the working directory
-WORKDIR /usr/src/ttybus
-
-# Clone the ttybus repository
-RUN git clone https://github.com/danielinux/ttybus.git .
-
-# Set build arguments
-ARG CFLAGS=-Wall
-ARG LDFLAGS=-lm
-
-# Build ttybus binaries
-RUN make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
-
 # Final image
 FROM ubuntu:latest
 
@@ -65,12 +52,11 @@ COPY --from=builder /app/RTKLIB/app/consapp/str2str/gcc/str2str /usr/local/bin/s
 # Copy the compiled NTRIP server from the build stage
 COPY --from=builder /app/ntripserver/ntripserver /usr/local/bin/ntripserver
 
-# Copy tty binaries from the build stage
-COPY --from=builder /usr/src/ttybus/tty_bus /usr/local/bin/
-COPY --from=builder /usr/src/ttybus/tty_fake /usr/local/bin/
-COPY --from=builder /usr/src/ttybus/tty_plug /usr/local/bin/
-COPY --from=builder /usr/src/ttybus/tty_attach /usr/local/bin/
-COPY --from=builder /usr/src/ttybus/dpipe /usr/local/bin/
+# Copy the socat mux script into the container
+COPY socat-mux.sh /usr/bin/socat-mux.sh
+
+# Make sure the socat mux script is executable
+RUN chmod +x /usr/bin/socat-mux.sh
 
 # Copy the healthcheck script into the container
 COPY healthcheck.sh /usr/local/bin/healthcheck.sh
