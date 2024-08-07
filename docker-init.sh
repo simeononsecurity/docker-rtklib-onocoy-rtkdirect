@@ -44,6 +44,7 @@ handle_error() {
 }
 
 # Function to set up virtual serial bus and devices using socat
+# Function to set up virtual serial bus and devices using socat
 setup_virtual_devices() {
     local bus_path="/tmp/ttyS0mux"
     local real_device="/dev/${USB_PORT}"
@@ -54,27 +55,35 @@ setup_virtual_devices() {
     # 1. Start the socat-mux.sh script to create a UNIX domain socket listener
     echo "Starting socat-mux.sh..."
     socat-mux.sh -d -d UNIX-L:${bus_path},fork FILE:${real_device},raw,echo=0 &
-    if [ $? -eq 0 ]; then
+    mux_pid=$!
+    sleep 2  # Wait for the mux to set up the socket
+
+    if kill -0 $mux_pid 2>/dev/null; then
         echo "socat-mux.sh started successfully."
     else
         handle_error "Failed to start socat-mux.sh."
     fi
 
+    # Check if the socket was created
+    if [ ! -S ${bus_path} ]; then
+        handle_error "Socket ${bus_path} was not created."
+    fi
+
     # 2. Create fake devices attached to the bus using socat
-    for i in "${!fake_devices[@]}"; do
-        fake_device="${fake_devices[$i]}"
+    for fake_device in "${fake_devices[@]}"; do
         echo "Creating fake device ${fake_device}..."
         socat -d -d PTY,raw,echo=0,link=${fake_device} UNIX:${bus_path} &
-        if [ $? -eq 0 ]; then
-            echo "${fake_device} created successfully."
-        else
+        if [ $? -ne 0 ]; then
             handle_error "Failed to create ${fake_device}."
+        else
+            echo "${fake_device} created successfully."
         fi
     done
 
     echo "Virtual devices created: ${fake_devices[*]}"
-    ls -la /dev/ttyS0fake0 && ls -la /dev/ttyS0fake1 && ls -la /dev/ttyS0fake2
+    ls -la ${fake_devices[@]}
 }
+
 
 # Check if LAT, LONG, and ELEVATION are specified
 if [ -n "$LAT" ] && [ -n "$LONG" ] && [ -n "$ELEVATION" ]; then
