@@ -20,6 +20,9 @@ if [ -z "$TCP_INPUT_PORT" ] && [ -z "$TCP_INPUT_IP" ]; then
     export SERIAL_INPUT="serial://ttyS0fake0:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
     export SERIAL_INPUT2="serial://ttyS0fake1:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
     export SERIAL_INPUT3="serial://ttyS0fake2:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
+    echo "SERIAL_INPUT: $ONOCOY_MOUNTPOINT"
+    echo "SERIAL_INPUT2: $SERIAL_INPUT2"
+    echo "SERIAL_INPUT3: $SERIAL_INPUT3"
 fi
 
 # Exit immediately if a command fails
@@ -155,9 +158,9 @@ if [ -n "$SERIAL_INPUT" ]; then
     setup_virtual_devices
     run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
     export NTRIPSERVERINPUT1="ntripserver -M 1 -i \"/dev/ttyS0fake1\" -b \"${BAUD_RATE}\""
-    export STR2STRINPUT1="str2str -in \"$SERIAL_INPUT1\""
+    export STR2STRINPUT1="str2str -in \"$SERIAL_INPUT2\""
     export NTRIPSERVERINPUT2="ntripserver -M 1 -i \"/dev/ttyS0fake2\" -b \"${BAUD_RATE}\""
-    export STR2STRINPUT2="str2str -in \"$SERIAL_INPUT2\""
+    export STR2STRINPUT2="str2str -in \"$SERIAL_INPUT3\""
     TCP_SERVER_SETUP_SUCCESSFUL=1
 else
     echo "No Serial / USB Option Specified, Checking for TCP Input Options..."
