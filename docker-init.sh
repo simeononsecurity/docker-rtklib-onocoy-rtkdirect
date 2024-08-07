@@ -19,7 +19,7 @@ export RTKDIRECT_USE_NTRIPSERVER="${RTKDIRECT_USE_NTRIPSERVER:-false}"
 if [ -z "$TCP_INPUT_PORT" ] && [ -z "$TCP_INPUT_IP" ]; then
     export SERIAL_INPUT="serial://ttyS0fake0:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
     export SERIAL_INPUT2="serial://ttyS0fake1:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
-    export SERIAL_INPUT3="serial://ttyS0fake1:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
+    export SERIAL_INPUT3="serial://ttyS0fake2:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
 fi
 
 # Exit immediately if a command fails
