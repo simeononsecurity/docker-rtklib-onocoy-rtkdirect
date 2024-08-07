@@ -107,7 +107,8 @@ if [ -n "$SERIAL_INPUT" ]; then
     echo "SERIAL_INPUT is \"$SERIAL_INPUT\""
     echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
     echo "STARTING RTKLIB SERIAL INPUT TCPSERVER...."
-    run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
+    #run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
+    run_and_retry ntripserver  -M 1 -i /dev/${USB_PORT} -b ${BAUD_RATE} -O 5 -a 0.0.0.0 -p ${TCP_OUTPUT_PORT} &
     TCP_SERVER_SETUP_SUCCESSFUL=1
 else
     echo "No Serial / USB Option Specified, Checking for TCP Input Options..."
@@ -117,7 +118,9 @@ else
         echo "TCP_INPUT_IP is \"$TCP_INPUT_IP\""
         echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
         echo "STARTING RTKLIB TCP INPUT TCPSERVER...."
-        run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
+        #run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
+        ./ntripserver -M 2 -H ${TCP_INPUT_IP} -P ${TCP_INPUT_PORT} -O 5 -a 0.0.0.0 -p ${TCP_OUTPUT_PORT}
+
         TCP_SERVER_SETUP_SUCCESSFUL=1
     else
         echo "TCP Input IP or Port not specified. Please define TCP_INPUT_IP and TCP_INPUT_PORT."
