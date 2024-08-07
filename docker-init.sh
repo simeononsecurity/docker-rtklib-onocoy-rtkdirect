@@ -61,7 +61,7 @@ setup_virtual_devices() {
     echo "Starting socat-mux.sh..."
     socat-mux.sh -d -d UNIX-L:${bus_path},fork FILE:${real_device},raw,echo=0 &> /dev/null &
     mux_pid=$!
-    sleep 2  # Initial wait for the mux to set up the socket
+    sleep 5  # Wait for the mux to set up the socket
 
     # Check if socat-mux.sh is running and if the socket file was created
     if kill -0 $mux_pid 2>/dev/null && [ -S ${bus_path} ]; then
@@ -74,7 +74,8 @@ setup_virtual_devices() {
     for fake_device in "${fake_devices[@]}"; do
         echo "Creating fake device ${fake_device}..."
         socat -d -d PTY,raw,echo=0,link=${fake_device} UNIX:${bus_path} &> /dev/null &
-        if [ $? -ne 0 ]; then
+        sleep 1  # Wait a bit to ensure the device is created
+        if [ $? -ne 0 ] || [ ! -e ${fake_device} ]; then
             handle_error "Failed to create ${fake_device}."
         else
             echo "${fake_device} created successfully."
@@ -84,6 +85,7 @@ setup_virtual_devices() {
     echo "Virtual devices created: ${fake_devices[*]}"
     ls -la ${fake_devices[@]}
 }
+
 
 # Check if LAT, LONG, and ELEVATION are specified
 if [ -n "$LAT" ] && [ -n "$LONG" ] && [ -n "$ELEVATION" ]; then
