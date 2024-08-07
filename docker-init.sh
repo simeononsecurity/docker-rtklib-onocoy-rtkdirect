@@ -17,9 +17,9 @@ export RTKDIRECT_USE_NTRIPSERVER="${RTKDIRECT_USE_NTRIPSERVER:-true}"
 
 # Construct SERIAL_INPUT using individual components only if TCP input is not use as a source
 if [ -z "$TCP_INPUT_PORT" ] && [ -z "$TCP_INPUT_IP" ]; then
-    export SERIAL_INPUT="serial://ttyS0fake0:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
-    export SERIAL_INPUT2="serial://ttyS0fake1:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
-    export SERIAL_INPUT3="serial://ttyS0fake2:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
+    export SERIAL_INPUT="serial://ttyS0onocoy0:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
+    export SERIAL_INPUT2="serial://ttyS0rtkdirect1:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
+    export SERIAL_INPUT3="serial://ttyS0str2str2:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
 fi
 
 # Exit immediately if a command fails
@@ -47,7 +47,7 @@ handle_error() {
 setup_virtual_devices() {
     local bus_path="/tmp/ttyS0mux"
     local real_device="/dev/${USB_PORT}"
-    local fake_devices=("/dev/ttyS0fake0" "/dev/ttyS0fake1" "/dev/ttyS0fake2")
+    local fake_devices=("/dev/ttyS0onocoy0" "/dev/ttyS0rtkdirect1" "/dev/ttyS0str2str2")
 
     echo "Setting up virtual serial bus and devices using socat..."
 
@@ -162,9 +162,9 @@ if [ -n "$SERIAL_INPUT" ]; then
     echo "STARTING RTKLIB SERIAL INPUT TCPSERVER...."
     setup_virtual_devices
     run_and_retry str2str -in "$SERIAL_INPUT3" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
-    export NTRIPSERVERINPUT1="ntripserver -M 1 -i \"/dev/ttyS0fake1\" -b \"${BAUD_RATE}\""
+    export NTRIPSERVERINPUT1="ntripserver -M 1 -i \"/dev/ttyS0onocoy0\" -b \"${BAUD_RATE}\""
     export STR2STRINPUT1="str2str -in \"$SERIAL_INPUT\#rtcm3\""
-    export NTRIPSERVERINPUT2="ntripserver -M 1 -i \"/dev/ttyS0fake2\" -b \"${BAUD_RATE}\""
+    export NTRIPSERVERINPUT2="ntripserver -M 1 -i \"/dev/ttyS0rtkdirect1\" -b \"${BAUD_RATE}\""
     export STR2STRINPUT2="str2str -in \"$SERIAL_INPUT2\#rtcm3\""
     TCP_SERVER_SETUP_SUCCESSFUL=1
 else
