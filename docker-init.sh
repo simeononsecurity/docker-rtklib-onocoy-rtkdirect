@@ -45,12 +45,19 @@ handle_error() {
 
 # Function to set up virtual serial bus and devices using socat
 # Function to set up virtual serial bus and devices using socat
+# Function to set up virtual serial bus and devices using socat
 setup_virtual_devices() {
     local bus_path="/tmp/ttyS0mux"
     local real_device="/dev/${USB_PORT}"
     local fake_devices=("/dev/ttyS0fake0" "/dev/ttyS0fake1" "/dev/ttyS0fake2")
 
     echo "Setting up virtual serial bus and devices using socat..."
+
+    # Remove any existing socket file
+    if [ -e "${bus_path}" ]; then
+        echo "Removing existing socket file ${bus_path}"
+        rm -f ${bus_path}
+    fi
 
     # 1. Start the socat-mux.sh script to create a UNIX domain socket listener
     echo "Starting socat-mux.sh..."
@@ -83,7 +90,6 @@ setup_virtual_devices() {
     echo "Virtual devices created: ${fake_devices[*]}"
     ls -la ${fake_devices[@]}
 }
-
 
 # Check if LAT, LONG, and ELEVATION are specified
 if [ -n "$LAT" ] && [ -n "$LONG" ] && [ -n "$ELEVATION" ]; then
