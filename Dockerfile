@@ -86,7 +86,5 @@ RUN mkdir -p /etc/stunnel && \
     -out /etc/stunnel/stunnel.pem -keyout /etc/stunnel/stunnel.pem \
     -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=localhost"
 
-RUN touch /tmp/ttyS0mux
-
 # Start stunnel and the main application
 CMD ["/app/docker-init.sh"]
