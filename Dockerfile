@@ -43,9 +43,10 @@ ENV TERM=xterm
 # Install RTKLIB, GPSD dependencies, stunnel, and other necessary tools from the package manager
 RUN apt-get update -y && \
     apt install -y apt-utils && \
-    apt-get full-upgrade -y -o Dpkg::Options::="--force-confnew" && \
-    apt-get install -y --no-install-recommends procps stunnel4 socat && \
+    apt-get full-upgrade -y --no-install-recommends -o Dpkg::Options::="--force-confnew" && \
+    apt-get install -y --no-install-recommends procps && \
     rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y --no-install-recommends stunnel4 socat
 
 # Copy the compiled str2str from the build stage
 COPY --from=builder /app/RTKLIB/app/consapp/str2str/gcc/str2str /usr/local/bin/str2str
