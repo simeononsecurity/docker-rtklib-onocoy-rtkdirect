@@ -53,12 +53,6 @@ COPY --from=builder /app/RTKLIB/app/consapp/str2str/gcc/str2str /usr/local/bin/s
 # Copy the compiled NTRIP server from the build stage
 COPY --from=builder /app/ntripserver/ntripserver /usr/local/bin/ntripserver
 
-# Copy the socat mux script into the container
-COPY socat-mux.sh /usr/bin/socat-mux.sh
-
-# Make sure the socat mux script is executable
-RUN chmod +x /usr/bin/socat-mux.sh
-
 # Copy the healthcheck script into the container
 COPY healthcheck.sh /usr/local/bin/healthcheck.sh
 
