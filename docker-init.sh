@@ -12,14 +12,12 @@ export TCP_INPUT_PORT="${TCP_INPUT_PORT}"
 export TCP_INPUT_IP="${TCP_INPUT_IP}"
 export TCP_SERVER_SETUP_SUCCESSFUL="${TCP_SERVER_SETUP_SUCCESSFUL:-0}"
 export ONOCOY_USE_SSL="${ONOCOY_USE_SSL:-true}"
-export ONOCOY_USE_NTRIPSERVER="${ONOCOY_USE_NTRIPSERVER:-true}"
-export RTKDIRECT_USE_NTRIPSERVER="${RTKDIRECT_USE_NTRIPSERVER:-true}"
+export ONOCOY_USE_NTRIPSERVER="${ONOCOY_USE_NTRIPSERVER:-false}"
+export RTKDIRECT_USE_NTRIPSERVER="${RTKDIRECT_USE_NTRIPSERVER:-false}"
 
 # Construct SERIAL_INPUT using individual components only if TCP input is not use as a source
 if [ -z "$TCP_INPUT_PORT" ] && [ -z "$TCP_INPUT_IP" ]; then
-    export SERIAL_INPUT="serial://ttyS0onocoy0:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
-    export SERIAL_INPUT2="serial://ttyS0rtkdirect1:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
-    export SERIAL_INPUT3="serial://ttyS0str2str2:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
+    export SERIAL_INPUT="serial://${USB_PORT}:${BAUD_RATE}:${DATA_BITS}:${PARITY}:${STOP_BITS}"
 fi
 
 # Exit immediately if a command fails
@@ -35,55 +33,6 @@ run_and_retry() {
         fi
         sleep 1
     done
-}
-
-# Function to handle errors
-handle_error() {
-    echo "Error occurred: $1"
-    exit 1
-}
-
-# Function to set up virtual serial bus and devices using socat
-setup_virtual_devices() {
-    local bus_path="/tmp/ttyS0mux"
-    local real_device="/dev/${USB_PORT}"
-    local fake_devices=("/dev/ttyS0onocoy0" "/dev/ttyS0rtkdirect1" "/dev/ttyS0str2str2")
-
-    echo "Setting up virtual serial bus and devices using socat..."
-
-    # Remove any existing socket file
-    if [ -e "${bus_path}" ]; then
-        echo "Removing existing socket file ${bus_path}"
-        rm -f ${bus_path}
-    fi
-
-    # 1. Start the socat-mux.sh script to create a UNIX domain socket listener
-    echo "Starting socat-mux.sh..."
-    socat-mux.sh -d -d UNIX-L:${bus_path},fork FILE:${real_device},raw,echo=0 &> /dev/null &
-    mux_pid=$!
-    sleep 5  # Wait for the mux to set up the socket
-
-    # Check if socat-mux.sh is running and if the socket file was created
-    if kill -0 $mux_pid 2>/dev/null && [ -S ${bus_path} ]; then
-        echo "socat-mux.sh started successfully."
-    else
-        handle_error "Failed to start socat-mux.sh."
-    fi
-
-    # 2. Create fake devices attached to the bus using socat
-    for fake_device in "${fake_devices[@]}"; do
-        echo "Creating fake device ${fake_device}..."
-        socat -d -d PTY,raw,echo=0,link=${fake_device} UNIX:${bus_path} &> /dev/null &
-        sleep 1  # Wait a bit to ensure the device is created
-        if [ $? -ne 0 ] || [ ! -e ${fake_device} ]; then
-            handle_error "Failed to create ${fake_device}."
-        else
-            echo "${fake_device} created successfully."
-        fi
-    done
-
-    echo "Virtual devices created: ${fake_devices[*]}"
-    ls -la ${fake_devices[@]}
 }
 
 
@@ -120,17 +69,17 @@ run_onocoy_server() {
             echo "STARTING NTRIPSERVER ONOCOY NTRIPv2 SERVER...."
             if [ "$ONOCOY_USE_SSL" = true ]; then
                 stunnel /etc/stunnel/stunnel.conf &
-                run_and_retry eval $NTRIPSERVERINPUT1 -O 1 -a "127.0.0.1" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
+                run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "127.0.0.1" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
             else
-                run_and_retry eval $NTRIPSERVERINPUT1 -O 1 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
+                run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
             fi
         else
             echo "STARTING RTKLIB ONOCOY NTRIPv1 SERVER...."
             if [ "$ONOCOY_USE_SSL" = true ]; then
                 stunnel /etc/stunnel/stunnel.conf &
-                run_and_retry eval $STR2STRINPUT1 -out "ntrips://:${ONOCOY_PASSWORD}@127.0.0.1:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
+                run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://:${ONOCOY_PASSWORD}@127.0.0.1:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
             else
-                run_and_retry eval $STR2STRINPUT1 -out "ntrips://:${ONOCOY_PASSWORD}@servers.onocoy.com:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
+                run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://:${ONOCOY_PASSWORD}@servers.onocoy.com:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
             fi
         fi
     fi
@@ -145,27 +94,20 @@ run_rtkdirect_server() {
         if [ "$RTKDIRECT_USE_NTRIPSERVER" = true ]; then
             sleep 1
             echo "STARTING NTRIPSERVER RTKDIRECT NTRIPv2 SERVER...."
-            run_and_retry eval $NTRIPSERVERINPUT2 -O 1 -a "ntrip.rtkdirect.com" -p "2101" -m "$RTKDIRECT_MOUNTPOINT" -n "$RTKDIRECT_USERNAME" -c "$RTKDIRECT_PASSWORD" -R 5 &
+            run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "ntrip.rtkdirect.com" -p "2101" -m "$RTKDIRECT_MOUNTPOINT" -n "$RTKDIRECT_USERNAME" -c "$RTKDIRECT_PASSWORD" -R 5 &
         else
             echo "STARTING RTKLIB RTKDIRECT NTRIPv1 SERVER...."
-            run_and_retry eval $STR2STRINPUT2 -out "ntrips://${RTKDIRECT_USERNAME}:${RTKDIRECT_PASSWORD}@ntrip.rtkdirect.com:2101/${RTKDIRECT_MOUNTPOINT}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
+            run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://${RTKDIRECT_USERNAME}:${RTKDIRECT_PASSWORD}@ntrip.rtkdirect.com:2101/${RTKDIRECT_MOUNTPOINT}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t 5 -s 30000 -r 30000 -n 1 &
         fi
     fi
 }
 
 # Run the first command only if all required parameters are specified
 if [ -n "$SERIAL_INPUT" ]; then
-    echo "SERIAL_INPUT: \"$SERIAL_INPUT\""
-    echo "SERIAL_INPUT2: \"$SERIAL_INPUT2\""
-    echo "SERIAL_INPUT3: \"$SERIAL_INPUT3\""
+    echo "SERIAL_INPUT is \"$SERIAL_INPUT\""
     echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
     echo "STARTING RTKLIB SERIAL INPUT TCPSERVER...."
-    setup_virtual_devices
-    run_and_retry str2str -in "$SERIAL_INPUT3" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
-    export NTRIPSERVERINPUT1="ntripserver -M 1 -i \"/dev/ttyS0onocoy0\" -b \"${BAUD_RATE}\""
-    export STR2STRINPUT1="str2str -in \"$SERIAL_INPUT\#rtcm3\""
-    export NTRIPSERVERINPUT2="ntripserver -M 1 -i \"/dev/ttyS0rtkdirect1\" -b \"${BAUD_RATE}\""
-    export STR2STRINPUT2="str2str -in \"$SERIAL_INPUT2\#rtcm3\""
+    run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
     TCP_SERVER_SETUP_SUCCESSFUL=1
 else
     echo "No Serial / USB Option Specified, Checking for TCP Input Options..."
@@ -175,11 +117,7 @@ else
         echo "TCP_INPUT_IP is \"$TCP_INPUT_IP\""
         echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
         echo "STARTING RTKLIB TCP INPUT TCPSERVER...."
-        run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &> /dev/null &
-        export NTRIPSERVERINPUT1="ntripserver -M 2 -H \"127.0.0.1\" -P \"${TCP_OUTPUT_PORT}\""
-        export STR2STRINPUT1="str2str -in \"tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3\""
-        export NTRIPSERVERINPUT2="ntripserver -M 2 -H \"127.0.0.1\" -P \"${TCP_OUTPUT_PORT}\""
-        export STR2STRINPUT2="str2str -in \"tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3\""
+        run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t 5 -s 30000 -r 30000 -n 1 &
         TCP_SERVER_SETUP_SUCCESSFUL=1
     else
         echo "TCP Input IP or Port not specified. Please define TCP_INPUT_IP and TCP_INPUT_PORT."
