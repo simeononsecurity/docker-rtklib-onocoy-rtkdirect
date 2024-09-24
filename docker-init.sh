@@ -62,7 +62,7 @@ run_onocoy_server() {
         ONOCOY_PASSWORD=$PASSWORD
     fi
     if [ -n "$ONOCOY_PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
-        echo "ONOCOY_USERNAME: $ONOCOY_PASSWORD"
+        echo "ONOCOY_PASSWORD: $ONOCOY_PASSWORD"
         echo "ONOCOY_USERNAME: $ONOCOY_USERNAME"
         if [ -n "$ONOCOY_MOUNTPOINT" ] || [ "$ONOCOY_USE_NTRIPSERVER" = true ]; then
             sleep 1
