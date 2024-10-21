@@ -2,7 +2,7 @@
 
 # Check for at least one running instance of str2str
 str2str_count=$(pgrep -c str2str)
-if [ "$str2str_count" -lt 1 ]; then
+if [ "$str2str_count" -lt 2 ]; then
     # If no str2str instance is found, exit with error (unhealthy)
     echo "Health Check: No running instance of str2str found. Exiting with error."
     exit 1
@@ -12,7 +12,7 @@ fi
 
 # Initial count of ntripserver and adjusted str2str count
 ntripserver_count=0
-str2str_count=1
+str2str_count=2
 
 # Boolean flag for server checks
 ntripservercheck=false
