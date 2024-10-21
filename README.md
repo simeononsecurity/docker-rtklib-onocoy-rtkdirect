@@ -43,7 +43,7 @@ For recommended hardware for this project please read the following:
 
     > You don't have to specify both Onocoy and RTKDirect credentials. The backend script is smart and looks to see if they have been set. You can use one or both and this should function perfectly.
 
-   > If the environment variable `ONCOCOY_MOUNTPOINT` or `ONOCOY_USE_NTRIPSERVER` or `RTKDIRECT_USE_NTRIPSERVER` is specified, the docker container will use **NTRIPSERVER** for Onocoy or RTKDirect respectively, otherwise it'll use **RTKLIB** for the connection to Onocoy and/or RTKDirect. The container will still use RTKLIB for the splitting of the feed no matter what.
+   > If the environment variable `ONOCOY_USE_NTRIPSERVER` or `RTKDIRECT_USE_NTRIPSERVER` is specified, the docker container will use **NTRIPSERVER** for Onocoy or RTKDirect respectively, otherwise it'll use **RTKLIB** for the connection to Onocoy and/or RTKDirect. The container will still use RTKLIB for the splitting of the feed no matter what.
    > `LAT`, `LONG`, `ELEVATION`, `INSTRAMENT`, and `ANTENNA` are all optional and are only used if RTKLIB is being used and NTRIPSERVER is not.
 
    > You may specify `TCP_OUTPUT_PORT` to change the tcp server's output port if using docker's [host networking mode](https://docs.docker.com/network/#drivers). Otherwise use the appropriate docker [port mappings](https://docs.docker.com/network/#published-ports).
