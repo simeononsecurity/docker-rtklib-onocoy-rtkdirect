@@ -74,7 +74,6 @@ For recommended hardware for this project please read the following:
      -e DATA_BITS=<YOUR_SERIAL_DATA_BITS> \
      -e PARITY=<YOUR_SERIAL_PARITY> \
      -e STOP_BITS=<YOUR_SERIAL_STOP_BITS> \
-     -e ONOCOY_MOUNTPOINT=<YOUR_ONOCOY_MOUNTPOINT> \ 
      -e ONOCOY_USERNAME=<YOUR_ONOCOY_MOUNTPOINT_USERNAME> \
      -e ONOCOY_PASSWORD=<YOUR_ONOCOY_MOUNTPOINT_PASSWORD> \
      -e RTKDIRECT_MOUNTPOINT=<YOUR_RTKDIRECT_MOUNTPOINT> \
@@ -113,6 +112,9 @@ For recommended hardware for this project please read the following:
     -e ELEVATION=50 \
     -e INSTRUMENT="Your GPS Receiver" \
     -e ANTENNA="Your Antenna" \
+     --log-driver json-file \
+     --log-opt max-file=5 \
+     --log-opt max-size=10m \
     simeononsecurity/docker-rtklib-onocoy-rtkdirect:latest
    ```
 
