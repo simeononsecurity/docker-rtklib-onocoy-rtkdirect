@@ -12,7 +12,7 @@ export TCP_INPUT_PORT="${TCP_INPUT_PORT}"
 export TCP_INPUT_IP="${TCP_INPUT_IP}"
 export TCP_SERVER_SETUP_SUCCESSFUL="${TCP_SERVER_SETUP_SUCCESSFUL:-0}"
 export ONOCOY_USE_SSL="${ONOCOY_USE_SSL:-true}"
-export ONOCOY_USE_NTRIPSERVER="${ONOCOY_USE_NTRIPSERVER:-true}"
+export ONOCOY_USE_NTRIPSERVER="${ONOCOY_USE_NTRIPSERVER:-false}"
 export RTKDIRECT_USE_NTRIPSERVER="${RTKDIRECT_USE_NTRIPSERVER:-true}"
 export RTKLIB_VERBOSITY="${RTKLIB_VERBOSITY:-1}"
 
@@ -55,33 +55,34 @@ if [ -n "$ANTENNA" ]; then
     echo "ANTENNA: $ANTENNA"
 fi
 
-# Function for running the second command
+# Function for running the third command
 run_onocoy_server() {
-    # Fix legacy containers password to new onocoy_password var
-    if [ -n "$PASSWORD" ] && [ -z "$ONOCOY_PASSWORD" ]; then
-        ONOCOY_PASSWORD=$PASSWORD
-    fi
-    if [ -n "$ONOCOY_PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ]; then
+    if [ -n "$ONOCOY_PASSWORD" ] && [ -n "$ONOCOY_USERNAME" ] ; then
         echo "ONOCOY_PASSWORD: $ONOCOY_PASSWORD"
         echo "ONOCOY_USERNAME: $ONOCOY_USERNAME"
-        if [ -n "$ONOCOY_MOUNTPOINT" ] || [ "$ONOCOY_USE_NTRIPSERVER" = true ]; then
-            sleep 1
-            echo "ONOCOY_MOUNTPOINT: $ONOCOY_MOUNTPOINT"
-            echo "STARTING NTRIPSERVER ONOCOY NTRIPv2 SERVER...."
-            if [ "$ONOCOY_USE_SSL" = true ]; then
-                stunnel /etc/stunnel/stunnel.conf &
-                run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "127.0.0.1" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
+        echo "ONOCOY_MOUNTPOINT: $ONOCOY_MOUNTPOINT"
+        if [ "$ONOCOY_USE_SSL" = true ]; then
+            if [ "$ONOCOY_USE_NTRIPSERVER" = true ]; then
+                if [ -n "$ONOCOY_MOUNTPOINT" ]; then
+                    stunnel /etc/stunnel/stunnel.conf &
+                    run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "127.0.0.1" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
+                else
+                    stunnel /etc/stunnel/stunnel.conf &
+                    run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 3 -a "127.0.0.1" -p "2101" -m "$ONOCOY_USERNAME" -n "" -c "$ONOCOY_PASSWORD" -R 5 &
+                fi
             else
-                run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
-            fi
-        else
-            echo "STARTING RTKLIB ONOCOY NTRIPv1 SERVER...."
-            if [ "$ONOCOY_USE_SSL" = true ]; then
                 stunnel /etc/stunnel/stunnel.conf &
                 run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://:${ONOCOY_PASSWORD}@127.0.0.1:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
+            fi
+        else
+            if [ "$ONOCOY_USE_NTRIPSERVER" = true ]; then
+                if [ -n "$ONOCOY_MOUNTPOINT"  ]; then
+                    run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
+                else
+                    run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 3 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "" -c "$ONOCOY_PASSWORD" -R 5 &
+                fi
             else
                 run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://:${ONOCOY_PASSWORD}@servers.onocoy.com:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
-            fi
         fi
     fi
 }
