@@ -108,7 +108,7 @@ if [ -n "$SERIAL_INPUT" ]; then
     echo "SERIAL_INPUT is \"$SERIAL_INPUT\""
     echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
     echo "STARTING RTKLIB SERIAL INPUT TCPSERVER...."
-    run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
+    run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}#rtcm3" -msg "$RTCM_MSGS" -b 1 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
     TCP_SERVER_SETUP_SUCCESSFUL=1
 else
     echo "No Serial / USB Option Specified, Checking for TCP Input Options..."
@@ -118,7 +118,7 @@ else
         echo "TCP_INPUT_IP is \"$TCP_INPUT_IP\""
         echo "TCP_OUTPUT_PORT is \"$TCP_OUTPUT_PORT\""
         echo "STARTING RTKLIB TCP INPUT TCPSERVER...."
-        run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
+        run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}#rtcm3" -msg "$RTCM_MSGS" -b 1 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
         TCP_SERVER_SETUP_SUCCESSFUL=1
     else
         echo "TCP Input IP or Port not specified. Please define TCP_INPUT_IP and TCP_INPUT_PORT."
