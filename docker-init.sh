@@ -138,8 +138,8 @@ if [ -n "$SERIAL_INPUT" ]; then
     echo "### Starting RTKLIB SERIAL INPUT TCPSERVER ###"
     echo "SERIAL_INPUT: $SERIAL_INPUT"
     echo "RTCM_TCP_OUTPUT_PORT: $RTCM_TCP_OUTPUT_PORT"
-    run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${RAW_TCP_OUTPUT_PORT}" -b 1 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
-    run_and_retry str2str -in "tcpcli://127.0.0.1:${RAW_TCP_OUTPUT_PORT}#rtcm3" -out "tcpsvr://0.0.0.0:${RTCM_TCP_OUTPUT_PORT}#rtcm3" -msg "$RTCM_MSGS" -b 1 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
+    run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${RAW_TCP_OUTPUT_PORT}" -b 0 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
+    run_and_retry str2str -in "tcpcli://127.0.0.1:${RAW_TCP_OUTPUT_PORT}#rtcm3" -out "tcpsvr://0.0.0.0:${RTCM_TCP_OUTPUT_PORT}#rtcm3" -msg "$RTCM_MSGS" -b 0 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
     TCP_SERVER_SETUP_SUCCESSFUL=1
 else
     echo "No Serial / USB Option Specified. Checking for TCP Input Options..."
@@ -149,8 +149,8 @@ else
         echo "TCP_INPUT_IP: $TCP_INPUT_IP"
         echo "RTCM_TCP_OUTPUT_PORT: $RTCM_TCP_OUTPUT_PORT"
         echo "### Starting RTKLIB TCP INPUT TCPSERVER ###"
-        run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${RAW_TCP_OUTPUT_PORT}" -b 1 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
-        run_and_retry str2str -in "tcpcli://127.0.0.1:${RAW_TCP_OUTPUT_PORT}#rtcm3" -out "tcpsvr://0.0.0.0:${RTCM_TCP_OUTPUT_PORT}#rtcm3" -msg "$RTCM_MSGS" -b 1 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
+        run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${RAW_TCP_OUTPUT_PORT}" -b 0 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
+        run_and_retry str2str -in "tcpcli://127.0.0.1:${RAW_TCP_OUTPUT_PORT}#rtcm3" -out "tcpsvr://0.0.0.0:${RTCM_TCP_OUTPUT_PORT}#rtcm3" -msg "$RTCM_MSGS" -b 0 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
         TCP_SERVER_SETUP_SUCCESSFUL=1
     else
         echo "TCP Input IP or Port not specified. Please define TCP_INPUT_IP and TCP_INPUT_PORT."
