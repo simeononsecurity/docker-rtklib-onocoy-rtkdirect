@@ -89,7 +89,7 @@ run_onocoy_server() {
                 else
                     echo "Starting stunnel and NTRIP server with SSL and no mountpoint."
                     stunnel /etc/stunnel/stunnel.conf &
-                    run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 3 -a "127.0.0.1" -p "2101" -m "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
+                    run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 3 -a "127.0.0.1" -p "2101" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
                 fi
             else
                 echo "Starting stunnel and str2str with SSL."
@@ -105,7 +105,7 @@ run_onocoy_server() {
                     run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 1 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
                 else
                     echo "Starting NTRIP server without SSL and no mountpoint."
-                    run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 3 -a "servers.onocoy.com" -p "2101" -m "$ONOCOY_MOUNTPOINT" -c "$ONOCOY_PASSWORD" -R 5 &
+                    run_and_retry ntripserver -M 2 -H "127.0.0.1" -P "${TCP_OUTPUT_PORT}" -O 3 -a "servers.onocoy.com" -p "2101" -n "$ONOCOY_USERNAME" -c "$ONOCOY_PASSWORD" -R 5 &
                 fi
             else
                 echo "Starting str2str without SSL."
