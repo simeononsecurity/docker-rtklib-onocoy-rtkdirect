@@ -147,7 +147,7 @@ else
         echo "TCP_INPUT_IP: $TCP_INPUT_IP"
         echo "TCP_OUTPUT_PORT: $TCP_OUTPUT_PORT"
         echo "### Starting RTKLIB TCP INPUT TCPSERVER ###"
-        run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}#rtcm3" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}#rtcm3" -b 1 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
+        run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${TCP_OUTPUT_PORT}" -b 1 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
         TCP_SERVER_SETUP_SUCCESSFUL=1
     else
         echo "TCP Input IP or Port not specified. Please define TCP_INPUT_IP and TCP_INPUT_PORT."
