@@ -83,9 +83,11 @@ run_onocoy_server() {
                 fi
             else
                 run_and_retry str2str -in "tcpcli://127.0.0.1:${TCP_OUTPUT_PORT}#rtcm3" -out "ntrips://:${ONOCOY_PASSWORD}@servers.onocoy.com:2101/${ONOCOY_USERNAME}#rtcm3" -msg "$RTCM_MSGS" $LAT_LONG_ELEVATION $INSTRUMENT $ANTENNA -b 0 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
+            fi
         fi
     fi
 }
+
 
 # Function for running the third command
 run_rtkdirect_server() {
