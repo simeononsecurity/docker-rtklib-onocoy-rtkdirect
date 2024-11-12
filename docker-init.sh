@@ -16,6 +16,8 @@ export ONOCOY_USE_SSL="${ONOCOY_USE_SSL:-true}"
 export ONOCOY_USE_NTRIPSERVER="${ONOCOY_USE_NTRIPSERVER:-false}"
 export RTKDIRECT_USE_NTRIPSERVER="${RTKDIRECT_USE_NTRIPSERVER:-true}"
 export RTKLIB_VERBOSITY="${RTKLIB_VERBOSITY:-1}"
+export INPUT_FORMAT="${INPUT_FORMAT:-rtcm3}"
+export OUTPUT_FORMAT="${OUTPUT_FORMAT:-rtcm3}"
 
 echo "### Setting Up SERIAL_INPUT Components ###"
 echo "USB_PORT: $USB_PORT"
@@ -133,29 +135,48 @@ run_rtkdirect_server() {
     fi
 }
 
-# Run the first command only if all required parameters are specified
+# Function to start str2str server
+start_str2str_server() {
+    local input="$1"
+    local output="$2"
+    local verbosity="${3:-1}"
+
+    echo "Starting str2str with input: $input and output: $output"
+    run_and_retry str2str -in "$input" -out "$output" -b 0 -t "$verbosity" -s 30000 -r 30000 -n 1 &
+}
+
+# Function to start str2str server
+start_str2str_server() {
+    local input="$1"
+    local output="$2"
+    local verbosity="${3:-1}"
+
+    echo "Starting str2str with input: $input and output: $output"
+    run_and_retry str2str -in "$input" -out "$output" -b 0 -t "$verbosity" -s 30000 -r 30000 -n 1 &
+}
+
+# Determine input source and run str2str accordingly
 if [ -n "$SERIAL_INPUT" ]; then
-    echo "### Starting RTKLIB SERIAL INPUT TCPSERVER ###"
+    echo "### Using SERIAL INPUT for RTKLIB TCPSERVER ###"
     echo "SERIAL_INPUT: $SERIAL_INPUT"
-    echo "RTCM_TCP_OUTPUT_PORT: $RTCM_TCP_OUTPUT_PORT"
-    run_and_retry str2str -in "$SERIAL_INPUT" -out "tcpsvr://0.0.0.0:${RAW_TCP_OUTPUT_PORT}" -b 0 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
-    run_and_retry str2str -in "tcpcli://127.0.0.1:${RAW_TCP_OUTPUT_PORT}#rtcm3" -out "tcpsvr://0.0.0.0:${RTCM_TCP_OUTPUT_PORT}#rtcm3" -b 0 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
+    echo "RAW_TCP_OUTPUT_PORT: $RAW_TCP_OUTPUT_PORT"
+    start_str2str_server "$SERIAL_INPUT#$INPUT_FORMAT" "tcpsvr://0.0.0.0:${RAW_TCP_OUTPUT_PORT}#$OUTPUT_FORMAT" "$RTKLIB_VERBOSITY"
+    start_str2str_server "tcpcli://127.0.0.1:${RAW_TCP_OUTPUT_PORT}#$OUTPUT_FORMAT" "tcpsvr://0.0.0.0:${RTCM_TCP_OUTPUT_PORT}#$OUTPUT_FORMAT" "$RTKLIB_VERBOSITY"
     TCP_SERVER_SETUP_SUCCESSFUL=1
+
+elif [ -n "$TCP_INPUT_PORT" ] && [ -n "$TCP_INPUT_IP" ]; then
+    echo "### Using TCP INPUT for RTKLIB TCPSERVER ###"
+    echo "TCP_INPUT_IP: $TCP_INPUT_IP"
+    echo "TCP_INPUT_PORT: $TCP_INPUT_PORT"
+    echo "RAW_TCP_OUTPUT_PORT: $RAW_TCP_OUTPUT_PORT"
+    start_str2str_server "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}#$INPUT_FORMAT" "tcpsvr://0.0.0.0:${RAW_TCP_OUTPUT_PORT}#$OUTPUT_FORMAT" "$RTKLIB_VERBOSITY"
+    start_str2str_server "tcpcli://127.0.0.1:${RAW_TCP_OUTPUT_PORT}#$OUTPUT_FORMAT" "tcpsvr://0.0.0.0:${RTCM_TCP_OUTPUT_PORT}#$OUTPUT_FORMAT" "$RTKLIB_VERBOSITY"
+    TCP_SERVER_SETUP_SUCCESSFUL=1
+
 else
-    echo "No Serial / USB Option Specified. Checking for TCP Input Options..."
-    if [ -n "$TCP_INPUT_PORT" ] && [ -n "$TCP_INPUT_IP" ]; then
-        echo "TCP Input IP and Port are specified. Proceeding with TCP Input..."
-        echo "TCP_INPUT_PORT: $TCP_INPUT_PORT"
-        echo "TCP_INPUT_IP: $TCP_INPUT_IP"
-        echo "RTCM_TCP_OUTPUT_PORT: $RTCM_TCP_OUTPUT_PORT"
-        echo "### Starting RTKLIB TCP INPUT TCPSERVER ###"
-        run_and_retry str2str -in "tcpcli://${TCP_INPUT_IP}:${TCP_INPUT_PORT}" -out "tcpsvr://0.0.0.0:${RAW_TCP_OUTPUT_PORT}" -b 0 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
-        run_and_retry str2str -in "tcpcli://127.0.0.1:${RAW_TCP_OUTPUT_PORT}#rtcm3" -out "tcpsvr://0.0.0.0:${RTCM_TCP_OUTPUT_PORT}#rtcm3" -b 0 -t $RTKLIB_VERBOSITY -s 30000 -r 30000 -n 1 &
-        TCP_SERVER_SETUP_SUCCESSFUL=1
-    else
-        echo "TCP Input IP or Port not specified. Please define TCP_INPUT_IP and TCP_INPUT_PORT."
-        TCP_SERVER_SETUP_SUCCESSFUL=0
-    fi
+    echo "Error: Neither SERIAL_INPUT nor TCP_INPUT are specified. Please define input options."
+    TCP_SERVER_SETUP_SUCCESSFUL=0
+    exit 1
 fi
 
 # Call functions based on the success of the TCP server setup
