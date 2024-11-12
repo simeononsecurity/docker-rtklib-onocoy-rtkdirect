@@ -145,16 +145,6 @@ start_str2str_server() {
     run_and_retry str2str -in "$input" -out "$output" -b 0 -t "$verbosity" -s 30000 -r 30000 -n 1 &
 }
 
-# Function to start str2str server
-start_str2str_server() {
-    local input="$1"
-    local output="$2"
-    local verbosity="${3:-1}"
-
-    echo "Starting str2str with input: $input and output: $output"
-    run_and_retry str2str -in "$input" -out "$output" -b 0 -t "$verbosity" -s 30000 -r 30000 -n 1 &
-}
-
 # Determine input source and run str2str accordingly
 if [ -n "$SERIAL_INPUT" ]; then
     echo "### Using SERIAL INPUT for RTKLIB TCPSERVER ###"
