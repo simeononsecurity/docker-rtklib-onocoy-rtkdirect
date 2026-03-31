@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 
 # Clone RTKLIB repo from the demo5 branch
 WORKDIR /app
-RUN git clone -b demo5 https://github.com/rtklibexplorer/RTKLIB.git
+RUN git clone -b main https://github.com/rtklibexplorer/RTKLIB.git
 
 # Change to str2str dir
 WORKDIR /app/RTKLIB/app/consapp/str2str/gcc
